@@ -1,84 +1,84 @@
-# Post To EmDash - Obsidian プラグイン
+# Post To EmDash - Obsidian plugin
 
-言語：**日本語** | [English](./README_EN.md)
+Language: **English** | [日本語](./README_JA.md)
 
-Obsidian で書いたノートを、[EmDash](https://github.com/emdash-cms/emdash) のサイトにブログ記事として投稿するプラグインです。
+Post a note written in Obsidian to an [EmDash](https://github.com/emdash-cms/emdash) site as a blog post.
 
-## できること
+## Features
 
-- **EmDash の記事を新規作成**：タイトルを聞いて、送るための項目が入った新しいノートを作る
-- **アイキャッチを選ぶ**：画像のフォルダの画像を、小さな絵付きの一覧から選んで `cover` に入れる
-- **このノートを EmDash に投稿**：今開いているノートを送る（コマンドかリボンのボタン）
-  - 下書きで送る。frontmatter に `status: publish` と書いたときだけ、すぐ公開
-  - 画像はアップロードして記事に入れる。アイキャッチは `cover` の画像、なければ本文の最初の画像
-  - カテゴリー・タグ・抜粋も送る。サイトに無いタグは作る
-  - 一度送ったノートをもう一度送ると、同じ記事が更新される。管理画面で直されていたら、上書きしてよいかを聞く
-- 見出し・強調・リンク・入れ子の箇条書き・チェックボックス・引用・コールアウト・表・コードを変換する。`%%コメント%%` は送らない
+- **Create new EmDash post**: asks for a title and creates a note with the fields ready to fill in
+- **Choose featured image**: pick an image from your image folder, shown with thumbnails, and put it in `cover`
+- **Post this note to EmDash**: sends the open note (command or ribbon button)
+  - Sent as a draft; published right away only when the frontmatter says `status: publish`
+  - Images are uploaded and placed in the post. The featured image is `cover`, or the first image in the body
+  - Category, tags and excerpt are sent too. Tags the site lacks are created
+  - Sending the same note again updates the same post. If it was edited in the admin, you are asked before overwriting
+- Converts headings, emphasis, links, nested lists, checkboxes, quotes, callouts, tables and code. `%%comments%%` are not sent
 
-## インストール / Installation
+## Installation
 
-**コミュニティプラグインから（おすすめ）**
+**From community plugins (recommended)**
 
-1. Obsidian の設定 →「コミュニティプラグイン」で、制限モードをオフにする
-2. 「閲覧」で「Post To EmDash」を探して、インストールして有効にする
+1. In Obsidian, open Settings → Community plugins and turn off Restricted mode
+2. Select Browse, search for "Post To EmDash", then install and enable it
 
-**手動で入れる**
+**Manually**
 
-1. [Releases](https://github.com/RieTamura/Post-To-EmDash/releases) から `main.js`・`manifest.json`・`styles.css` をダウンロードする
-2. 保管庫の `.obsidian/plugins/post-to-emdash/` フォルダに入れる
-3. Obsidian を開き直して、「コミュニティプラグイン」で有効にする
+1. Download `main.js`, `manifest.json` and `styles.css` from [Releases](https://github.com/RieTamura/Post-To-EmDash/releases)
+2. Put them in your vault's `.obsidian/plugins/post-to-emdash/` folder
+3. Reload Obsidian and enable the plugin under Community plugins
 
-## 使い方 / Usage
+## Usage
 
-1. EmDash の管理画面「APIトークン」で、トークンを作る。権限は「コンテンツの読み取り」「コンテンツの書き込み」「メディア書き込み」の3つ
-2. プラグインの設定で、サイトの URL とトークンを入れて、「接続を確かめる」を押す
-3. コマンド「EmDash の記事を新規作成」でノートを作り、記事を書く（ふつうのノートに下の項目を書いてもよい）
-4. コマンド「このノートを EmDash に投稿」（またはリボンのボタン）で送る。最初は下書きとして届く
-5. 管理画面で確かめて公開する。または `status: publish` にして、もう一度送る
+1. In the EmDash admin, create a token under "API Tokens" with the scopes `content:read`, `content:write` and `media:write`
+2. In the plugin settings, enter the site URL and the token, then select "Check"
+3. Run "Create new EmDash post" to make a note and write your post (or add the fields below to any note)
+4. Run "Post this note to EmDash" (or use the ribbon button). The first send arrives as a draft
+5. Check it in the admin and publish it there, or set `status: publish` and send again
 
-## ノートの書き方
+## Writing a note
 
 ```yaml
 ---
-title: 記事のタイトル        # なければノートの名前
-slug: my-first-post          # URL の最後。なければタイトルから自動
-excerpt: 短い紹介文
-category: 開発               # サイトにあるカテゴリーの名前
-tags: [Web開発, ツール]       # 書かなければ、サイトのタグは変えない
-cover: "[[表紙.png]]"        # アイキャッチ
-status: draft                # draft（下書き）か publish（公開）
+title: Post title             # defaults to the note name
+slug: my-first-post           # last part of the URL; made from the title if empty
+excerpt: A short summary
+category: Development         # the name of a category on the site
+tags: [webdev, tools]         # leave out to keep the site's tags
+cover: "[[cover.png]]"        # featured image
+status: draft                 # draft or publish
 ---
 ```
 
-送ると `emdash_id`・`emdash_url`・`emdash_rev` が書き足されます。消すと、次は別の記事として送られます。
+Sending adds `emdash_id`, `emdash_url` and `emdash_rev`. Remove them and the next send makes a new post.
 
-## 設定
+## Settings
 
-| 設定 | 内容 |
+| Setting | What it is |
 | --- | --- |
-| サイトの URL | EmDash のサイトの URL |
-| アクセストークン | EmDash の管理画面「APIトークン」で作ったトークン（`ec_pat_…`）。権限は `content:read`・`content:write`・`media:write` の3つ |
-| 画像をアップロードする | ノートの画像を EmDash に送るかどうか |
-| タイムアウト | 通信を待つ時間（ミリ秒） |
-| 新しい記事のフォルダ | 「EmDash の記事を新規作成」でノートを作る場所 |
-| 項目の説明を入れる | 新しい記事に、項目の書き方の説明（`%% … %%`）を入れるか |
-| 画像のフォルダ | 「アイキャッチを選ぶ」で候補にする画像のフォルダ。空なら保管庫のすべての画像 |
-| 接続を確かめる | URL とトークンで記事を読めるかを試す |
+| Site URL | The URL of your EmDash site |
+| Access token | A token made under "API Tokens" in the EmDash admin (`ec_pat_…`) with the `content:read`, `content:write` and `media:write` scopes |
+| Upload images | Whether to send the note's images to EmDash |
+| Timeout | How long to wait for the site (ms) |
+| Folder for new posts | Where "Create new EmDash post" puts the note |
+| Add field guide | Put a guide to the fields (`%% … %%`) in new posts |
+| Image folder | Images offered by "Choose featured image". Empty means every image in the vault |
+| Check connection | Try reading posts with the URL and token |
 
-トークンは Obsidian のキーチェーンに保存されます。プラグインの設定ファイル（`data.json`）には書かれないので、保管庫を同期しても広がりません。キーチェーンは端末ごとなので、パソコンとスマホでそれぞれ入力してください。
+The token is kept in the Obsidian keychain, not in the plugin's `data.json`, so syncing your vault does not spread it. The keychain is per device, so enter it on each computer and phone.
 
-## 開発
+## Development
 
 ```bash
 npm install
-npm run dev     # 変更を見張ってビルド
-npm run build   # 本番用ビルド（main.js）
+npm run dev     # watch and build
+npm run build   # production build (main.js)
 npm run lint
-npm test        # 変換のテスト
+npm test        # converter tests
 ```
 
-`main.js`・`manifest.json`・`styles.css` を保管庫の `.obsidian/plugins/post-to-emdash/` に置くと読み込めます。
+Put `main.js`, `manifest.json` and `styles.css` in your vault's `.obsidian/plugins/post-to-emdash/` to load it.
 
-## ライセンス
+## License
 
 [0BSD](./LICENSE)

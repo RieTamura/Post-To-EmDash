@@ -310,3 +310,8 @@ status: draft
 - タグ `0.1.0` を送り、GitHub Actions がビルド来歴の証明つきでドラフトのリリースを作成。あなたが説明を入れて公開した（Latest）。
 - community.obsidian.md に登録した（Owner は自分）。登録は「下書き（draft mode）」の状態で、まだ一般には見えない。
 - 0.1.0（commit `1e2e8f4`）の自動レビューは「Pending」。結果が出たら、問題がなければ登録の画面で「Publish」を押して公開する。直すところがあれば、直して version を上げた新しいリリースを出し、「Check for new releases」で読み直してもらう。
+- 0.1.0 の自動レビュー：エラーなし（リリースの証明・依存関係・難読化なし・ビルドの再現はすべて Pass）。警告は2種類。
+  - README.md に英語が無い → README.md を英語に、日本語は README_JA.md に分けた。
+  - 型の分からない値（any）を使っている（`trimEnd`・`flatMap`・`matchAll`・`Object.entries` の行）→ 原因は tsconfig の lib が ES7 までだったこと。手元では Node の型が補っていたので気づけなかった。lib を ES2022 にし、`"types": []` で Node の型を使わないようにした。eslint にも同じルール（no-unsafe-*）を入れ、0 件を確認。
+  - Recommendation（参考）：保管庫のすべてのファイルを列挙している（`vault.getFiles`）。「アイキャッチを選ぶ」で画像を探すためで、そのままにする。
+- 直したものを 0.1.1 として出し直す。
