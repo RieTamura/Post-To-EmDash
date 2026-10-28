@@ -1,0 +1,30 @@
+{
+	"name": "post-to-emdash",
+	"version": "0.1.0",
+	"description": "Post the current note to an EmDash site as a blog post.",
+	"main": "main.js",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"lint": "eslint src",
+		"version": "node version-bump.mjs && git add manifest.json versions.json"
+	},
+	"keywords": [
+		"obsidian",
+		"emdash"
+	],
+	"author": "RieTamura",
+	"license": "0BSD",
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"@types/node": "^16.18.126",
+		"@typescript-eslint/eslint-plugin": "^8.72.1",
+		"@typescript-eslint/parser": "^8.72.1",
+		"esbuild": "^0.25.12",
+		"eslint": "^10.13.0",
+		"eslint-plugin-obsidianmd": "^0.4.2",
+		"obsidian": "^1.14.4",
+		"tslib": "^2.4.0",
+		"typescript": "^5.9.3"
+	}
+}

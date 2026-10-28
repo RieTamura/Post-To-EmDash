@@ -1,0 +1,11 @@
+{
+	"id": "post-to-emdash",
+	"name": "Post To EmDash",
+	"version": "0.1.0",
+	"minAppVersion": "1.11.5",
+	"description": "Post the current note to an EmDash site as a blog post.",
+	"author": "RieTamura",
+	"authorUrl": "https://github.com/RieTamura",
+	"fundingUrl": "https://github.com/sponsors/RieTamura",
+	"isDesktopOnly": false
+}
