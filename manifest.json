@@ -3,7 +3,7 @@
 	"name": "Post To EmDash",
 	"version": "0.1.0",
 	"minAppVersion": "1.11.5",
-	"description": "Post the current note to an EmDash site as a blog post.",
+	"description": "Send notes to an EmDash site as blog posts, with images, tags and categories.",
 	"author": "RieTamura",
 	"authorUrl": "https://github.com/RieTamura",
 	"fundingUrl": "https://github.com/sponsors/RieTamura",

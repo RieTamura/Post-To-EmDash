@@ -14,6 +14,12 @@ export interface LocaleStrings {
 	newPostFolderDesc: string;
 	insertGuideLabel: string;
 	insertGuideDesc: string;
+	commandPickCover: string;
+	pickCoverPlaceholder: string;
+	noImagesFound: (folder: string) => string;
+	coverSet: (name: string) => string;
+	imageFolderLabel: string;
+	imageFolderDesc: string;
 	siteUrlLabel: string;
 	siteUrlDesc: string;
 	tokenLabel: string;
@@ -80,6 +86,12 @@ const ja: LocaleStrings = {
 	newPostFolderDesc: '「EmDash の記事を新規作成」でノートを作る場所。空なら保管庫のいちばん上。',
 	insertGuideLabel: '項目の説明を入れる',
 	insertGuideDesc: '新しい記事の本文の先頭に、項目の書き方の説明を %% … %% で入れます（サイトには送られません）。',
+	commandPickCover: 'アイキャッチを選ぶ',
+	pickCoverPlaceholder: '画像の名前で絞り込む',
+	noImagesFound: (folder) => folder ? `フォルダ「${folder}」に画像がありません。設定の「画像のフォルダ」を確かめてください。` : '保管庫に画像がありません。',
+	coverSet: (name) => `アイキャッチを「${name}」にしました。`,
+	imageFolderLabel: '画像のフォルダ',
+	imageFolderDesc: '「アイキャッチを選ぶ」で候補にする画像のフォルダ（下のフォルダも含む）。空なら保管庫のすべての画像。',
 	siteUrlLabel: 'サイトの URL',
 	siteUrlDesc: 'EmDash のサイトの URL（例：https://example.com）。',
 	tokenLabel: 'アクセストークン',
@@ -146,6 +158,12 @@ Sending adds emdash_id, emdash_url and emdash_rev. Removing them makes the next 
 	newPostFolderDesc: 'Where "Create new EmDash post" puts the note. Empty means the top of the vault.',
 	insertGuideLabel: 'Add field guide',
 	insertGuideDesc: 'Put a short guide to the fields at the top of new posts, inside %% … %% (not sent to the site).',
+	commandPickCover: 'Choose featured image',
+	pickCoverPlaceholder: 'Filter images by name',
+	noImagesFound: (folder) => folder ? `No images in the folder "${folder}". Check "Image folder" in the settings.` : 'There are no images in the vault.',
+	coverSet: (name) => `Featured image set to "${name}".`,
+	imageFolderLabel: 'Image folder',
+	imageFolderDesc: 'Images in this folder (and its subfolders) are offered by "Choose featured image". Empty means every image in the vault.',
 	siteUrlLabel: 'Site URL',
 	siteUrlDesc: 'The URL of your EmDash site (e.g. https://example.com).',
 	tokenLabel: 'Access token',

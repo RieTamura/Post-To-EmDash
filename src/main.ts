@@ -1,6 +1,7 @@
 import { Notice, Plugin, TFile, TFolder, normalizePath, requestUrl } from 'obsidian';
 import { EmDashApi, EmDashError, normalizeSiteUrl } from './api';
 import { confirm } from './confirm';
+import { CoverSuggestModal, listImages } from './cover-modal';
 import { convertMarkdown, type ImageBlock } from './convert';
 import { getLocale, type LocaleStrings } from './i18n';
 import { fillImageBlock, mimeTypeOf, parseCoverValue, toFeaturedImage, type FeaturedImage, type MediaItem } from './media';
@@ -10,6 +11,11 @@ import { postUrl, sendPost, type PostInput, type PostResult } from './publish';
 import { resolveTaxonomies, UnknownCategoryError } from './taxonomy';
 import { askTitle } from './title-modal';
 import { DEFAULT_SETTINGS, PostToEmDashSettingTab, type PostToEmDashSettings } from './settings';
+
+/** 設定のフォルダを、保管庫の中のパスにそろえる。空や「/」は保管庫のいちばん上（空文字） */
+function folderSetting(value: string): string {
+	return normalizePath(value || '/').replace(/^\/+|\/+$/g, '');
+}
 
 export default class PostToEmDashPlugin extends Plugin {
 	settings: PostToEmDashSettings = DEFAULT_SETTINGS;
@@ -35,6 +41,17 @@ export default class PostToEmDashPlugin extends Plugin {
 			id: 'create-new-post',
 			name: this.locale.commandNewPost,
 			callback: () => void this.createNewPost(),
+		});
+
+		this.addCommand({
+			id: 'pick-cover',
+			name: this.locale.commandPickCover,
+			checkCallback: (checking) => {
+				const file = this.app.workspace.getActiveFile();
+				if (!file || file.extension !== 'md') return false;
+				if (!checking) this.pickCover(file);
+				return true;
+			},
 		});
 
 		this.addRibbonIcon('file-plus', this.locale.ribbonNewPost, () => void this.createNewPost());
@@ -117,7 +134,7 @@ export default class PostToEmDashPlugin extends Plugin {
 		const title = await askTitle(this.app, locale.newPostHeading, locale.newPostPlaceholder, locale.newPostCreate);
 		if (!title) return;
 		try {
-			const folder = normalizePath(this.settings.newPostFolder || '/').replace(/^\/+|\/+$/g, '');
+			const folder = folderSetting(this.settings.newPostFolder);
 			if (folder && !(this.app.vault.getAbstractFileByPath(folder) instanceof TFolder)) {
 				await this.app.vault.createFolder(folder);
 			}
@@ -129,6 +146,24 @@ export default class PostToEmDashPlugin extends Plugin {
 			console.error('Post To EmDash: could not create a new post note', e);
 			new Notice(locale.newPostFailed(e instanceof Error ? e.message : String(e)));
 		}
+	}
+
+	/** 画像の一覧からアイキャッチを選んで、frontmatter の cover に入れる */
+	private pickCover(note: TFile): void {
+		const locale = this.locale;
+		const folder = folderSetting(this.settings.imageFolder);
+		const images = listImages(this.app, folder);
+		if (!images.length) {
+			new Notice(locale.noImagesFound(folder));
+			return;
+		}
+		new CoverSuggestModal(this.app, images, locale.pickCoverPlaceholder, (image) => {
+			// Obsidian のリンクと同じ書き方。名前が重なる画像はフォルダ付きになる
+			const link = `[[${this.app.metadataCache.fileToLinktext(image, note.path, false)}]]`;
+			void this.app.fileManager.processFrontMatter(note, (fm: Record<string, unknown>) => {
+				fm.cover = link;
+			}).then(() => new Notice(locale.coverSet(image.name)));
+		}).open();
 	}
 
 	private async postNote(file: TFile): Promise<void> {

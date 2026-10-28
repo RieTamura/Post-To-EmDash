@@ -14,6 +14,8 @@ export interface PostToEmDashSettings {
 	/** 「EmDash の記事を新規作成」でノートを作るフォルダ。空なら保管庫のいちばん上 */
 	newPostFolder: string;
 	insertGuide: boolean;
+	/** 「アイキャッチを選ぶ」で候補にする画像のフォルダ。空なら保管庫のすべて */
+	imageFolder: string;
 }
 
 export const DEFAULT_SETTINGS: PostToEmDashSettings = {
@@ -23,6 +25,7 @@ export const DEFAULT_SETTINGS: PostToEmDashSettings = {
 	networkTimeoutMs: 15000,
 	newPostFolder: '',
 	insertGuide: true,
+	imageFolder: '',
 };
 
 function clampTimeout(value: unknown): number {
@@ -74,6 +77,11 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 				control: { type: 'toggle', key: 'insertGuide', defaultValue: DEFAULT_SETTINGS.insertGuide }
 			},
 			{
+				name: locale.imageFolderLabel,
+				desc: locale.imageFolderDesc,
+				control: { type: 'folder', key: 'imageFolder', placeholder: '/', includeRoot: true }
+			},
+			{
 				name: locale.checkLabel,
 				desc: locale.checkDesc,
 				render: (setting) => this.addCheckButton(setting)
@@ -108,6 +116,25 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 					button.setDisabled(false);
 				}
 			}));
+	}
+
+	private addFolderInput(containerEl: HTMLElement, name: string, desc: string, key: 'newPostFolder' | 'imageFolder'): void {
+		new Setting(containerEl)
+			.setName(name)
+			.setDesc(desc)
+			.addText(text => {
+				text.setPlaceholder('/')
+					.setValue(this.plugin.settings[key])
+					.onChange(async (value) => {
+						this.plugin.settings[key] = value.trim();
+						await this.plugin.saveSettings();
+					});
+				new FolderSuggest(this.app, text.inputEl, (path) => {
+					text.setValue(path);
+					this.plugin.settings[key] = path;
+					void this.plugin.saveSettings();
+				});
+			});
 	}
 
 	// Obsidian 1.13 未満用フォールバック（1.13+ では getSettingDefinitions から宣言的に描画される）
@@ -152,22 +179,7 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
-		new Setting(containerEl)
-			.setName(locale.newPostFolderLabel)
-			.setDesc(locale.newPostFolderDesc)
-			.addText(text => {
-				text.setPlaceholder('/')
-					.setValue(this.plugin.settings.newPostFolder)
-					.onChange(async (value) => {
-						this.plugin.settings.newPostFolder = value.trim();
-						await this.plugin.saveSettings();
-					});
-				new FolderSuggest(this.app, text.inputEl, (path) => {
-					text.setValue(path);
-					this.plugin.settings.newPostFolder = path;
-					void this.plugin.saveSettings();
-				});
-			});
+		this.addFolderInput(containerEl, locale.newPostFolderLabel, locale.newPostFolderDesc, 'newPostFolder');
 
 		new Setting(containerEl)
 			.setName(locale.insertGuideLabel)
@@ -178,6 +190,8 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 					this.plugin.settings.insertGuide = value;
 					await this.plugin.saveSettings();
 				}));
+
+		this.addFolderInput(containerEl, locale.imageFolderLabel, locale.imageFolderDesc, 'imageFolder');
 
 		this.addCheckButton(new Setting(containerEl)
 			.setName(locale.checkLabel)

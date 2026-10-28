@@ -4,3 +4,29 @@
 .post-to-emdash-title-input {
 	width: 100%;
 }
+
+/* 「アイキャッチを選ぶ」の一覧：小さな絵と名前 */
+.post-to-emdash-cover-item {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-3);
+}
+
+.post-to-emdash-cover-thumb {
+	width: 56px;
+	height: 56px;
+	flex-shrink: 0;
+	object-fit: cover;
+	border-radius: var(--radius-s);
+	background-color: var(--background-secondary);
+}
+
+.post-to-emdash-cover-text {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.post-to-emdash-cover-folder {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
