@@ -316,3 +316,5 @@ status: draft
   - Recommendation（参考）：保管庫のすべてのファイルを列挙している（`vault.getFiles`）。「アイキャッチを選ぶ」で画像を探すためで、そのままにする。
 - 直したものを 0.1.1 として出し直す。
 - 0.1.1（commit `a26066f`）の自動レビュー：SOURCE CODE と README の警告が消え、エラー・警告なし（保管庫のファイル一覧の「参考」だけ）。登録の画面で Publish して公開する。
+- 2026-10-28：コミュニティプラグインとして公開（0.1.1。Health: Excellent、Review: Passed）。
+- これからの更新の手順は、Claude Code のスキル「release-post-to-emdash」（`~/.claude/skills/release-post-to-emdash/SKILL.md`）にまとめた。版を上げる → 点検 → タグ → 下書きのリリースを公開、の流れ。
