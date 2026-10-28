@@ -72,7 +72,7 @@ const ja: LocaleStrings = {
 	newPostHeading: '新しい記事',
 	newPostPlaceholder: '記事のタイトル',
 	newPostCreate: '作成',
-	newPostGuide: `Post To EmDash で送るための項目（この %% の中はサイトに送られません）
+	newPostGuide: `Post To EmDash で送るための項目（このコメントの中はサイトに送られません）
 - title：記事のタイトル
 - slug：URL の最後（例 my-first-post）。空ならタイトルから自動で作られる
 - excerpt：タイムラインに出る短い紹介文
@@ -144,7 +144,7 @@ const en: LocaleStrings = {
 	newPostHeading: 'New post',
 	newPostPlaceholder: 'Post title',
 	newPostCreate: 'Create',
-	newPostGuide: `Fields used by Post To EmDash (nothing inside these %% is sent to the site)
+	newPostGuide: `Fields used by Post To EmDash (nothing in this comment is sent to the site)
 - title: the post title
 - slug: the last part of the URL (e.g. my-first-post). Empty means it is made from the title
 - excerpt: a short summary shown on the timeline
