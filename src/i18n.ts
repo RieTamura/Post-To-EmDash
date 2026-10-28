@@ -13,7 +13,6 @@ export interface LocaleStrings {
 	timeoutDesc: string;
 	noActiveNote: string;
 	settingsMissing: string;
-	notReadyYet: string;
 	checkLabel: string;
 	checkDesc: string;
 	checkButton: string;
@@ -27,6 +26,23 @@ export interface LocaleStrings {
 	errTimeout: string;
 	errNetwork: (detail: string) => string;
 	errOther: (status: number, detail: string) => string;
+	errLocked: string;
+	errSlugTaken: (slug: string) => string;
+	posting: string;
+	alreadyPosting: string;
+	postedDraft: (title: string) => string;
+	updatedDraft: (title: string) => string;
+	updatedDraftLiveKept: (title: string) => string;
+	published: (title: string) => string;
+	imagesSkipped: (count: number) => string;
+	conflictTitle: string;
+	conflictMessage: string;
+	conflictOverwrite: string;
+	deletedTitle: string;
+	deletedMessage: string;
+	deletedPostAsNew: string;
+	cancel: string;
+	cancelled: string;
 }
 
 const ja: LocaleStrings = {
@@ -42,7 +58,6 @@ const ja: LocaleStrings = {
 	timeoutDesc: '通信を待つ時間。1000〜60000。',
 	noActiveNote: '投稿するノートを開いてください。',
 	settingsMissing: '設定で、サイトの URL とアクセストークンを入れてください。',
-	notReadyYet: '投稿の機能はまだ作っている途中です。',
 	checkLabel: '接続を確かめる',
 	checkDesc: 'サイトの URL とアクセストークンで、記事を読めるかを試します。',
 	checkButton: '確かめる',
@@ -56,6 +71,23 @@ const ja: LocaleStrings = {
 	errTimeout: 'サイトから返事がありません（タイムアウト）。',
 	errNetwork: (detail) => `サイトにつながりません（${detail}）。`,
 	errOther: (status, detail) => `エラーになりました（${status}：${detail}）。`,
+	errSlugTaken: (slug) => `URL の最後が「${slug}」の記事が、もうサイトにあります（ゴミ箱の記事も含みます）。frontmatter の slug を変えるか、管理画面のゴミ箱から完全に削除してください。`,
+	errLocked: 'この記事はいま管理画面で編集中です。管理画面を閉じてから、もう一度送ってください。',
+	posting: 'EmDash に送っています…',
+	alreadyPosting: '前の投稿がまだ終わっていません。',
+	postedDraft: (title) => `「${title}」を下書きとして送りました。`,
+	updatedDraft: (title) => `「${title}」の下書きを更新しました。`,
+	updatedDraftLiveKept: (title) => `「${title}」の変更を下書きに保存しました。公開中の記事はそのままです（管理画面で公開するか、status: publish で送ってください）。`,
+	published: (title) => `「${title}」を公開しました。`,
+	imagesSkipped: (count) => `画像 ${count} 枚は、まだ送れません（次の版で対応します）。`,
+	conflictTitle: 'サイト側で変更があります',
+	conflictMessage: 'この記事は、前に送ったあとに管理画面で直されています。上書きすると、管理画面での変更は消えます。上書きしますか？',
+	conflictOverwrite: '上書きする',
+	deletedTitle: 'サイトに記事がありません',
+	deletedMessage: '前に送った記事が、サイトで削除されています。新しい記事として送りますか？',
+	deletedPostAsNew: '新しい記事として送る',
+	cancel: 'キャンセル',
+	cancelled: '送るのをやめました。',
 };
 
 const en: LocaleStrings = {
@@ -71,7 +103,6 @@ const en: LocaleStrings = {
 	timeoutDesc: 'How long to wait for the site. 1000–60000.',
 	noActiveNote: 'Open the note you want to post.',
 	settingsMissing: 'Set the site URL and the access token in the settings.',
-	notReadyYet: 'Posting is not built yet.',
 	checkLabel: 'Check connection',
 	checkDesc: 'Try reading posts with the site URL and the access token.',
 	checkButton: 'Check',
@@ -85,6 +116,23 @@ const en: LocaleStrings = {
 	errTimeout: 'The site did not answer (timed out).',
 	errNetwork: (detail) => `Could not reach the site (${detail}).`,
 	errOther: (status, detail) => `Something went wrong (${status}: ${detail}).`,
+	errSlugTaken: (slug) => `A post with the slug "${slug}" already exists on the site (posts in the trash count too). Change slug in the frontmatter, or delete that post for good from the trash in the admin.`,
+	errLocked: 'This post is open in the admin editor. Close it there and send again.',
+	posting: 'Sending to EmDash…',
+	alreadyPosting: 'The previous post is still being sent.',
+	postedDraft: (title) => `Sent "${title}" as a draft.`,
+	updatedDraft: (title) => `Updated the draft of "${title}".`,
+	updatedDraftLiveKept: (title) => `Saved the changes to "${title}" as a draft. The published version stays as it is (publish it in the admin, or send with status: publish).`,
+	published: (title) => `Published "${title}".`,
+	imagesSkipped: (count) => `${count} image(s) cannot be sent yet (coming in the next version).`,
+	conflictTitle: 'The post was changed on the site',
+	conflictMessage: 'This post was edited in the admin after you last sent it. Overwriting will discard those edits. Overwrite?',
+	conflictOverwrite: 'Overwrite',
+	deletedTitle: 'The post is gone from the site',
+	deletedMessage: 'The post you sent before has been deleted on the site. Send this note as a new post?',
+	deletedPostAsNew: 'Send as a new post',
+	cancel: 'Cancel',
+	cancelled: 'Cancelled.',
 };
 
 /** Obsidian の表示言語に合わせる。日本語以外は英語 */
