@@ -304,3 +304,9 @@ status: draft
 - 使っている Obsidian の機能が minAppVersion 1.11.5 で動くことを確認（SecretComponent 1.11.1、secretStorage 1.11.4 など。1.13 からの機能は requireApiVersion で分けている）。
 - README に「インストール / Installation」「使い方 / Usage」を追加（日本語・英語）。
 - manifest の説明を「Send notes to an EmDash site as blog posts, with images, tags and categories.」に。
+
+### 申請の記録（2026-10-28）
+
+- タグ `0.1.0` を送り、GitHub Actions がビルド来歴の証明つきでドラフトのリリースを作成。あなたが説明を入れて公開した（Latest）。
+- community.obsidian.md に登録した（Owner は自分）。登録は「下書き（draft mode）」の状態で、まだ一般には見えない。
+- 0.1.0（commit `1e2e8f4`）の自動レビューは「Pending」。結果が出たら、問題がなければ登録の画面で「Publish」を押して公開する。直すところがあれば、直して version を上げた新しいリリースを出し、「Check for new releases」で読み直してもらう。
