@@ -34,7 +34,9 @@ export interface LocaleStrings {
 	updatedDraft: (title: string) => string;
 	updatedDraftLiveKept: (title: string) => string;
 	published: (title: string) => string;
-	imagesSkipped: (count: number) => string;
+	uploadingImage: (index: number, total: number) => string;
+	imagesMissing: (names: string[]) => string;
+	errUnknownCategory: (name: string, available: string[]) => string;
 	conflictTitle: string;
 	conflictMessage: string;
 	conflictOverwrite: string;
@@ -79,7 +81,9 @@ const ja: LocaleStrings = {
 	updatedDraft: (title) => `「${title}」の下書きを更新しました。`,
 	updatedDraftLiveKept: (title) => `「${title}」の変更を下書きに保存しました。公開中の記事はそのままです（管理画面で公開するか、status: publish で送ってください）。`,
 	published: (title) => `「${title}」を公開しました。`,
-	imagesSkipped: (count) => `画像 ${count} 枚は、まだ送れません（次の版で対応します）。`,
+	uploadingImage: (index, total) => `画像をアップロードしています（${index}/${total}）…`,
+	imagesMissing: (names) => `見つからなかった画像は外して送りました：${names.join('、')}`,
+	errUnknownCategory: (name, available) => `カテゴリー「${name}」はサイトにありません。使えるのは：${available.join('、') || '（なし）'}。カテゴリーは管理画面で作ってください。`,
 	conflictTitle: 'サイト側で変更があります',
 	conflictMessage: 'この記事は、前に送ったあとに管理画面で直されています。上書きすると、管理画面での変更は消えます。上書きしますか？',
 	conflictOverwrite: '上書きする',
@@ -124,7 +128,9 @@ const en: LocaleStrings = {
 	updatedDraft: (title) => `Updated the draft of "${title}".`,
 	updatedDraftLiveKept: (title) => `Saved the changes to "${title}" as a draft. The published version stays as it is (publish it in the admin, or send with status: publish).`,
 	published: (title) => `Published "${title}".`,
-	imagesSkipped: (count) => `${count} image(s) cannot be sent yet (coming in the next version).`,
+	uploadingImage: (index, total) => `Uploading images (${index}/${total})…`,
+	imagesMissing: (names) => `These images were not found and were left out: ${names.join(', ')}`,
+	errUnknownCategory: (name, available) => `The category "${name}" does not exist on the site. Available: ${available.join(', ') || '(none)'}. Create categories in the admin.`,
 	conflictTitle: 'The post was changed on the site',
 	conflictMessage: 'This post was edited in the admin after you last sent it. Overwriting will discard those edits. Overwrite?',
 	conflictOverwrite: 'Overwrite',

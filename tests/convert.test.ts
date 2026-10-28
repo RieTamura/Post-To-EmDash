@@ -24,7 +24,7 @@ function simplify(blocks: Block[]): unknown[] {
 			case 'code':
 				return { code: b.code, language: b.language };
 			case 'image':
-				return { image: b.asset.url, alt: b.alt, width: b.width, height: b.height };
+				return { image: b.asset.url, alt: b.alt, width: b.displayWidth, height: b.displayHeight };
 			case 'break':
 				return 'hr';
 			case 'table':

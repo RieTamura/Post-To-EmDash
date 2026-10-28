@@ -41,9 +41,15 @@ export interface ImageBlock {
 	_key: string;
 	alt: string;
 	/** 変換直後は url にノートに書かれたままの画像の場所が入る。アップロード後に _ref へ置きかえる */
-	asset: { url?: string; _ref?: string };
+	asset: { url?: string; _ref?: string; provider?: string };
+	/** 画像そのものの大きさ（アップロード後に入る） */
 	width?: number;
 	height?: number;
+	/** ノートで ![[画像|300]] のように指定した表示の大きさ */
+	displayWidth?: number;
+	displayHeight?: number;
+	blurhash?: string;
+	dominantColor?: string;
 }
 
 export interface BreakBlock {
@@ -330,8 +336,8 @@ class Converter {
 
 	private pushImage(url: string, alt: string, width?: number, height?: number): void {
 		const image: ImageBlock = { _type: 'image', _key: this.key(), alt, asset: { url } };
-		if (width) image.width = width;
-		if (height) image.height = height;
+		if (width) image.displayWidth = width;
+		if (height) image.displayHeight = height;
 		this.blocks.push(image);
 		this.images.push(image);
 	}

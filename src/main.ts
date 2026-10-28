@@ -1,10 +1,12 @@
-import { Notice, Plugin, TFile } from 'obsidian';
+import { Notice, Plugin, TFile, normalizePath, requestUrl } from 'obsidian';
 import { EmDashApi, EmDashError, normalizeSiteUrl } from './api';
 import { confirm } from './confirm';
-import { convertMarkdown } from './convert';
+import { convertMarkdown, type ImageBlock } from './convert';
 import { getLocale, type LocaleStrings } from './i18n';
+import { fillImageBlock, mimeTypeOf, parseCoverValue, toFeaturedImage, type FeaturedImage, type MediaItem } from './media';
 import { FRONTMATTER_KEYS, noteBody, readNoteFields } from './note';
 import { postUrl, sendPost, type PostInput, type PostResult } from './publish';
+import { resolveTaxonomies, UnknownCategoryError } from './taxonomy';
 import { DEFAULT_SETTINGS, PostToEmDashSettingTab, type PostToEmDashSettings } from './settings';
 
 export default class PostToEmDashPlugin extends Plugin {
@@ -69,6 +71,7 @@ export default class PostToEmDashPlugin extends Plugin {
 	/** エラーを、何をすればよいかがわかる文に変える */
 	describeError(e: unknown): string {
 		const locale = this.locale;
+		if (e instanceof UnknownCategoryError) return locale.errUnknownCategory(e.category, e.available);
 		if (!(e instanceof EmDashError)) return locale.errOther(0, e instanceof Error ? e.message : String(e));
 		if (e.timedOut) return locale.errTimeout;
 		if (e.status === 0) return locale.errNetwork(e.message);
@@ -120,9 +123,42 @@ export default class PostToEmDashPlugin extends Plugin {
 			const { blocks, images } = convertMarkdown(body, {
 				resolveWikiLink: (target) => this.postedUrlOf(target, file.path),
 			});
-			// 画像のアップロードはステップ6。それまでは画像を外して送る
-			const content = blocks.filter((b) => b._type !== 'image');
 
+			// 画像をアップロードして、本文の画像ブロックにメディアの ID を入れる。
+			// 見つからない画像と、アップロードしない設定のときの画像は外す
+			const dropped = new Set<ImageBlock>();
+			const missing: string[] = [];
+			let featuredImage: FeaturedImage | undefined;
+			if (this.settings.uploadImages) {
+				const cover = parseCoverValue(fields.cover);
+				const sources = [...new Set([...(cover ? [cover] : []), ...images.map((i) => i.asset.url ?? '')])].filter(Boolean);
+				const uploaded = new Map<string, MediaItem>();
+				for (const [index, src] of sources.entries()) {
+					progress.setMessage(locale.uploadingImage(index + 1, sources.length));
+					const loaded = await this.loadImage(src, file);
+					if (loaded) uploaded.set(src, await api.uploadImage(loaded));
+					else missing.push(src);
+				}
+				let first: { media: MediaItem; alt: string } | undefined;
+				for (const image of images) {
+					const media = uploaded.get(image.asset.url ?? '');
+					if (!media) {
+						dropped.add(image);
+						continue;
+					}
+					first ??= { media, alt: image.alt };
+					fillImageBlock(image, media);
+				}
+				// アイキャッチは cover の画像。なければ本文の最初の画像
+				const coverMedia = cover ? uploaded.get(cover) : undefined;
+				if (coverMedia) featuredImage = toFeaturedImage(coverMedia, '');
+				else if (first) featuredImage = toFeaturedImage(first.media, first.alt);
+			} else {
+				images.forEach((i) => dropped.add(i));
+			}
+			const content = blocks.filter((b) => !(b._type === 'image' && dropped.has(b)));
+
+			progress.setMessage(locale.posting);
 			const input: PostInput = {
 				id: fields.id,
 				rev: fields.rev,
@@ -130,6 +166,8 @@ export default class PostToEmDashPlugin extends Plugin {
 				slug: fields.slug,
 				excerpt: fields.excerpt,
 				content,
+				featuredImage,
+				taxonomies: await resolveTaxonomies(api, fields.category, fields.tags),
 				publish: fields.publish,
 			};
 			const result = await this.sendWithConfirm(api, input);
@@ -147,7 +185,7 @@ export default class PostToEmDashPlugin extends Plugin {
 
 			progress.hide();
 			new Notice(this.resultMessage(fields.title, result), 8000);
-			if (images.length) new Notice(locale.imagesSkipped(images.length), 8000);
+			if (missing.length) new Notice(locale.imagesMissing(missing), 10000);
 		} catch (e) {
 			console.error('Post To EmDash: posting failed', e);
 			progress.hide();
@@ -184,6 +222,30 @@ export default class PostToEmDashPlugin extends Plugin {
 		if (result.published) return locale.published(title);
 		if (result.created) return locale.postedDraft(title);
 		return result.hasLiveVersion ? locale.updatedDraftLiveKept(title) : locale.updatedDraft(title);
+	}
+
+	/**
+	 * 画像を読む。保管庫の画像は ![[…]] と同じ探し方（ノートからの相対・ファイル名だけでもよい）、
+	 * http(s) の画像はダウンロードする。見つからなければ null
+	 */
+	private async loadImage(src: string, from: TFile): Promise<{ name: string; data: ArrayBuffer; type: string } | null> {
+		if (/^https?:\/\//i.test(src)) {
+			try {
+				const response = await requestUrl({ url: src, throw: false });
+				if (response.status < 200 || response.status >= 300) return null;
+				const name = decodeURIComponent(new URL(src).pathname.split('/').pop() || 'image');
+				const headerType = Object.entries(response.headers).find(([k]) => k.toLowerCase() === 'content-type')?.[1];
+				const type = headerType?.startsWith('image/') ? headerType.split(';')[0] : mimeTypeOf(name);
+				return { name, data: response.arrayBuffer, type };
+			} catch (e) {
+				console.error('Post To EmDash: could not download image', src, e);
+				return null;
+			}
+		}
+		const target = this.app.metadataCache.getFirstLinkpathDest(src, from.path)
+			?? this.app.vault.getFileByPath(normalizePath(src));
+		if (!target) return null;
+		return { name: target.name, data: await this.app.vault.readBinary(target), type: mimeTypeOf(target.name) };
 	}
 
 	/** [[ノート]] の相手がサイトに投稿済みなら、その記事の URL */
