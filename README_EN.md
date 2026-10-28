@@ -31,6 +31,7 @@ npm install
 npm run dev     # watch and build
 npm run build   # production build (main.js)
 npm run lint
+npm test        # converter tests
 ```
 
 Put `main.js`, `manifest.json` and `styles.css` in your vault's `.obsidian/plugins/post-to-emdash/` to load it.

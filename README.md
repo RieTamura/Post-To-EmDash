@@ -31,6 +31,7 @@ npm install
 npm run dev     # 変更を見張ってビルド
 npm run build   # 本番用ビルド（main.js）
 npm run lint
+npm test        # 変換のテスト
 ```
 
 `main.js`・`manifest.json`・`styles.css` を保管庫の `.obsidian/plugins/post-to-emdash/` に置くと読み込めます。
