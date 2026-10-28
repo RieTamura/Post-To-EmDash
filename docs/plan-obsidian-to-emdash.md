@@ -318,3 +318,5 @@ status: draft
 - 0.1.1（commit `a26066f`）の自動レビュー：SOURCE CODE と README の警告が消え、エラー・警告なし（保管庫のファイル一覧の「参考」だけ）。登録の画面で Publish して公開する。
 - 2026-10-28：コミュニティプラグインとして公開（0.1.1。Health: Excellent、Review: Passed）。
 - これからの更新の手順は、Claude Code のスキル「release-post-to-emdash」（`~/.claude/skills/release-post-to-emdash/SKILL.md`）にまとめた。版を上げる → 点検 → タグ → 下書きのリリースを公開、の流れ。
+- 2026-10-28：0.1.2 を公開（commit `7d4dc2e`）。「EmDash の記事を新規作成」で入る項目の説明に `%%` があり、そこでコメントが終わって残りがサイトに送られていたのを直した（説明の文から `%%` を外し、説明が送られないことを確かめるテストを足した）。自動レビューはすべて Pass（保管庫のファイル一覧の「参考」だけ）。
+- 次の 0.1.3 の候補：iPhone の HEIC 画像が黙って送られない問題。
