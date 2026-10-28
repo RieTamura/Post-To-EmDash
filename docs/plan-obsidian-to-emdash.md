@@ -315,3 +315,4 @@ status: draft
   - 型の分からない値（any）を使っている（`trimEnd`・`flatMap`・`matchAll`・`Object.entries` の行）→ 原因は tsconfig の lib が ES7 までだったこと。手元では Node の型が補っていたので気づけなかった。lib を ES2022 にし、`"types": []` で Node の型を使わないようにした。eslint にも同じルール（no-unsafe-*）を入れ、0 件を確認。
   - Recommendation（参考）：保管庫のすべてのファイルを列挙している（`vault.getFiles`）。「アイキャッチを選ぶ」で画像を探すためで、そのままにする。
 - 直したものを 0.1.1 として出し直す。
+- 0.1.1（commit `a26066f`）の自動レビュー：SOURCE CODE と README の警告が消え、エラー・警告なし（保管庫のファイル一覧の「参考」だけ）。登録の画面で Publish して公開する。
