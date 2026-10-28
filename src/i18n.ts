@@ -3,6 +3,17 @@ import { getLanguage } from 'obsidian';
 export interface LocaleStrings {
 	commandPostNote: string;
 	ribbonPostNote: string;
+	commandNewPost: string;
+	ribbonNewPost: string;
+	newPostHeading: string;
+	newPostPlaceholder: string;
+	newPostCreate: string;
+	newPostGuide: string;
+	newPostFailed: (detail: string) => string;
+	newPostFolderLabel: string;
+	newPostFolderDesc: string;
+	insertGuideLabel: string;
+	insertGuideDesc: string;
 	siteUrlLabel: string;
 	siteUrlDesc: string;
 	tokenLabel: string;
@@ -50,6 +61,25 @@ export interface LocaleStrings {
 const ja: LocaleStrings = {
 	commandPostNote: 'このノートを EmDash に投稿',
 	ribbonPostNote: 'EmDash に投稿',
+	commandNewPost: 'EmDash の記事を新規作成',
+	ribbonNewPost: 'EmDash の記事を新規作成',
+	newPostHeading: '新しい記事',
+	newPostPlaceholder: '記事のタイトル',
+	newPostCreate: '作成',
+	newPostGuide: `Post To EmDash で送るための項目（この %% の中はサイトに送られません）
+- title：記事のタイトル
+- slug：URL の最後（例 my-first-post）。空ならタイトルから自動で作られる
+- excerpt：タイムラインに出る短い紹介文
+- category：サイトにあるカテゴリーの名前。無い名前だと送れない
+- tags：タグを付けるときは「tags: [タグ1, タグ2]」の行を足す。サイトに無いタグは新しく作られる
+- cover：アイキャッチの画像（例 [[表紙.png]]）。空なら本文の最初の画像
+- status：draft（下書き）か publish（すぐ公開）
+送ると emdash_id・emdash_url・emdash_rev が書き足される。消すと次は別の記事として送られる`,
+	newPostFailed: (detail) => `ノートを作れませんでした（${detail}）。`,
+	newPostFolderLabel: '新しい記事のフォルダ',
+	newPostFolderDesc: '「EmDash の記事を新規作成」でノートを作る場所。空なら保管庫のいちばん上。',
+	insertGuideLabel: '項目の説明を入れる',
+	insertGuideDesc: '新しい記事の本文の先頭に、項目の書き方の説明を %% … %% で入れます（サイトには送られません）。',
 	siteUrlLabel: 'サイトの URL',
 	siteUrlDesc: 'EmDash のサイトの URL（例：https://example.com）。',
 	tokenLabel: 'アクセストークン',
@@ -97,6 +127,25 @@ const ja: LocaleStrings = {
 const en: LocaleStrings = {
 	commandPostNote: 'Post this note to EmDash',
 	ribbonPostNote: 'Post to EmDash',
+	commandNewPost: 'Create new EmDash post',
+	ribbonNewPost: 'Create new EmDash post',
+	newPostHeading: 'New post',
+	newPostPlaceholder: 'Post title',
+	newPostCreate: 'Create',
+	newPostGuide: `Fields used by Post To EmDash (nothing inside these %% is sent to the site)
+- title: the post title
+- slug: the last part of the URL (e.g. my-first-post). Empty means it is made from the title
+- excerpt: a short summary shown on the timeline
+- category: the name of a category on the site. Unknown names cannot be sent
+- tags: to add tags, add a line "tags: [tag1, tag2]". Tags the site does not have are created
+- cover: the featured image (e.g. [[cover.png]]). Empty means the first image in the body
+- status: draft or publish (publish right away)
+Sending adds emdash_id, emdash_url and emdash_rev. Removing them makes the next send a new post`,
+	newPostFailed: (detail) => `Could not create the note (${detail}).`,
+	newPostFolderLabel: 'Folder for new posts',
+	newPostFolderDesc: 'Where "Create new EmDash post" puts the note. Empty means the top of the vault.',
+	insertGuideLabel: 'Add field guide',
+	insertGuideDesc: 'Put a short guide to the fields at the top of new posts, inside %% … %% (not sent to the site).',
 	siteUrlLabel: 'Site URL',
 	siteUrlDesc: 'The URL of your EmDash site (e.g. https://example.com).',
 	tokenLabel: 'Access token',

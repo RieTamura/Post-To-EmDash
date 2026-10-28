@@ -1,1 +1,6 @@
 /* Post To EmDash */
+
+/* 「新しい記事」のタイトル入力欄を横いっぱいに */
+.post-to-emdash-title-input {
+	width: 100%;
+}

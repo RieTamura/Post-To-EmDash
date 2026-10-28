@@ -1,12 +1,14 @@
-import { Notice, Plugin, TFile, normalizePath, requestUrl } from 'obsidian';
+import { Notice, Plugin, TFile, TFolder, normalizePath, requestUrl } from 'obsidian';
 import { EmDashApi, EmDashError, normalizeSiteUrl } from './api';
 import { confirm } from './confirm';
 import { convertMarkdown, type ImageBlock } from './convert';
 import { getLocale, type LocaleStrings } from './i18n';
 import { fillImageBlock, mimeTypeOf, parseCoverValue, toFeaturedImage, type FeaturedImage, type MediaItem } from './media';
+import { buildNewPostNote, safeFileName, uniquePath } from './new-post';
 import { FRONTMATTER_KEYS, noteBody, readNoteFields } from './note';
 import { postUrl, sendPost, type PostInput, type PostResult } from './publish';
 import { resolveTaxonomies, UnknownCategoryError } from './taxonomy';
+import { askTitle } from './title-modal';
 import { DEFAULT_SETTINGS, PostToEmDashSettingTab, type PostToEmDashSettings } from './settings';
 
 export default class PostToEmDashPlugin extends Plugin {
@@ -28,6 +30,14 @@ export default class PostToEmDashPlugin extends Plugin {
 				return true;
 			},
 		});
+
+		this.addCommand({
+			id: 'create-new-post',
+			name: this.locale.commandNewPost,
+			callback: () => void this.createNewPost(),
+		});
+
+		this.addRibbonIcon('file-plus', this.locale.ribbonNewPost, () => void this.createNewPost());
 
 		this.addRibbonIcon('upload', this.locale.ribbonPostNote, () => {
 			const file = this.app.workspace.getActiveFile();
@@ -99,6 +109,26 @@ export default class PostToEmDashPlugin extends Plugin {
 			notice.setMessage(this.describeError(e));
 		}
 		window.setTimeout(() => notice.hide(), 6000);
+	}
+
+	/** タイトルを聞いて、送るための項目が入った新しいノートを作って開く */
+	private async createNewPost(): Promise<void> {
+		const locale = this.locale;
+		const title = await askTitle(this.app, locale.newPostHeading, locale.newPostPlaceholder, locale.newPostCreate);
+		if (!title) return;
+		try {
+			const folder = normalizePath(this.settings.newPostFolder || '/').replace(/^\/+|\/+$/g, '');
+			if (folder && !(this.app.vault.getAbstractFileByPath(folder) instanceof TFolder)) {
+				await this.app.vault.createFolder(folder);
+			}
+			const name = safeFileName(title) || locale.newPostHeading;
+			const path = uniquePath(folder, name, (p) => this.app.vault.getAbstractFileByPath(p) !== null);
+			const file = await this.app.vault.create(path, buildNewPostNote(title, this.settings.insertGuide ? locale.newPostGuide : null));
+			await this.app.workspace.getLeaf(false).openFile(file);
+		} catch (e) {
+			console.error('Post To EmDash: could not create a new post note', e);
+			new Notice(locale.newPostFailed(e instanceof Error ? e.message : String(e)));
+		}
 	}
 
 	private async postNote(file: TFile): Promise<void> {

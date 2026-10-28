@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, SecretComponent, Setting } from 'obsidian';
+import { AbstractInputSuggest, App, PluginSettingTab, SecretComponent, Setting, TFolder } from 'obsidian';
 import type { SettingDefinitionItem } from 'obsidian';
 import type PostToEmDashPlugin from './main';
 
@@ -11,6 +11,9 @@ export interface PostToEmDashSettings {
 	tokenSecretId: string;
 	uploadImages: boolean;
 	networkTimeoutMs: number;
+	/** 「EmDash の記事を新規作成」でノートを作るフォルダ。空なら保管庫のいちばん上 */
+	newPostFolder: string;
+	insertGuide: boolean;
 }
 
 export const DEFAULT_SETTINGS: PostToEmDashSettings = {
@@ -18,6 +21,8 @@ export const DEFAULT_SETTINGS: PostToEmDashSettings = {
 	tokenSecretId: '',
 	uploadImages: true,
 	networkTimeoutMs: 15000,
+	newPostFolder: '',
+	insertGuide: true,
 };
 
 function clampTimeout(value: unknown): number {
@@ -57,6 +62,16 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 				name: locale.timeoutLabel,
 				desc: locale.timeoutDesc,
 				control: { type: 'number', key: 'networkTimeoutMs', placeholder: '15000', defaultValue: DEFAULT_SETTINGS.networkTimeoutMs, min: 1000, max: 60000, step: 1 }
+			},
+			{
+				name: locale.newPostFolderLabel,
+				desc: locale.newPostFolderDesc,
+				control: { type: 'folder', key: 'newPostFolder', placeholder: '/', includeRoot: true }
+			},
+			{
+				name: locale.insertGuideLabel,
+				desc: locale.insertGuideDesc,
+				control: { type: 'toggle', key: 'insertGuide', defaultValue: DEFAULT_SETTINGS.insertGuide }
 			},
 			{
 				name: locale.checkLabel,
@@ -137,8 +152,56 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
+		new Setting(containerEl)
+			.setName(locale.newPostFolderLabel)
+			.setDesc(locale.newPostFolderDesc)
+			.addText(text => {
+				text.setPlaceholder('/')
+					.setValue(this.plugin.settings.newPostFolder)
+					.onChange(async (value) => {
+						this.plugin.settings.newPostFolder = value.trim();
+						await this.plugin.saveSettings();
+					});
+				new FolderSuggest(this.app, text.inputEl, (path) => {
+					text.setValue(path);
+					this.plugin.settings.newPostFolder = path;
+					void this.plugin.saveSettings();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName(locale.insertGuideLabel)
+			.setDesc(locale.insertGuideDesc)
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.insertGuide)
+				.onChange(async (value) => {
+					this.plugin.settings.insertGuide = value;
+					await this.plugin.saveSettings();
+				}));
+
 		this.addCheckButton(new Setting(containerEl)
 			.setName(locale.checkLabel)
 			.setDesc(locale.checkDesc));
+	}
+}
+
+/** フォルダの候補を出す入力欄。display() フォールバック（1.13 未満）専用 */
+class FolderSuggest extends AbstractInputSuggest<TFolder> {
+	constructor(app: App, inputEl: HTMLInputElement, private readonly onSelectFolder: (path: string) => void) {
+		super(app, inputEl);
+	}
+
+	protected getSuggestions(query: string): TFolder[] {
+		const q = query.toLowerCase();
+		return this.app.vault.getAllFolders(true).filter((folder) => folder.path.toLowerCase().includes(q));
+	}
+
+	renderSuggestion(folder: TFolder, el: HTMLElement): void {
+		el.setText(folder.path || '/');
+	}
+
+	selectSuggestion(folder: TFolder): void {
+		this.onSelectFolder(folder.path === '/' ? '' : folder.path);
+		this.close();
 	}
 }
