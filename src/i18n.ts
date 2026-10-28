@@ -14,6 +14,19 @@ export interface LocaleStrings {
 	noActiveNote: string;
 	settingsMissing: string;
 	notReadyYet: string;
+	checkLabel: string;
+	checkDesc: string;
+	checkButton: string;
+	checking: string;
+	checkOk: string;
+	siteUrlInvalid: string;
+	errUnauthorized: string;
+	errForbidden: (detail: string) => string;
+	errNotEmDash: string;
+	errNotFound: string;
+	errTimeout: string;
+	errNetwork: (detail: string) => string;
+	errOther: (status: number, detail: string) => string;
 }
 
 const ja: LocaleStrings = {
@@ -30,6 +43,19 @@ const ja: LocaleStrings = {
 	noActiveNote: '投稿するノートを開いてください。',
 	settingsMissing: '設定で、サイトの URL とアクセストークンを入れてください。',
 	notReadyYet: '投稿の機能はまだ作っている途中です。',
+	checkLabel: '接続を確かめる',
+	checkDesc: 'サイトの URL とアクセストークンで、記事を読めるかを試します。',
+	checkButton: '確かめる',
+	checking: '確かめています…',
+	checkOk: '接続できました。',
+	siteUrlInvalid: 'サイトの URL が正しくありません（https:// から始めてください）。',
+	errUnauthorized: 'アクセストークンが正しくないか、期限が切れています。',
+	errForbidden: (detail) => `アクセストークンの権限が足りません（${detail}）。`,
+	errNotEmDash: 'このサイトは EmDash ではないようです。サイトの URL を確かめてください。',
+	errNotFound: 'ブログ（posts）が見つかりません。サイトの URL を確かめてください。',
+	errTimeout: 'サイトから返事がありません（タイムアウト）。',
+	errNetwork: (detail) => `サイトにつながりません（${detail}）。`,
+	errOther: (status, detail) => `エラーになりました（${status}：${detail}）。`,
 };
 
 const en: LocaleStrings = {
@@ -46,6 +72,19 @@ const en: LocaleStrings = {
 	noActiveNote: 'Open the note you want to post.',
 	settingsMissing: 'Set the site URL and the access token in the settings.',
 	notReadyYet: 'Posting is not built yet.',
+	checkLabel: 'Check connection',
+	checkDesc: 'Try reading posts with the site URL and the access token.',
+	checkButton: 'Check',
+	checking: 'Checking…',
+	checkOk: 'Connected.',
+	siteUrlInvalid: 'The site URL is not valid (start it with https://).',
+	errUnauthorized: 'The access token is wrong or has expired.',
+	errForbidden: (detail) => `The access token lacks a scope (${detail}).`,
+	errNotEmDash: 'This does not look like an EmDash site. Check the site URL.',
+	errNotFound: 'The blog (posts) was not found. Check the site URL.',
+	errTimeout: 'The site did not answer (timed out).',
+	errNetwork: (detail) => `Could not reach the site (${detail}).`,
+	errOther: (status, detail) => `Something went wrong (${status}: ${detail}).`,
 };
 
 /** Obsidian の表示言語に合わせる。日本語以外は英語 */

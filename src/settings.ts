@@ -58,6 +58,11 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 				desc: locale.timeoutDesc,
 				control: { type: 'number', key: 'networkTimeoutMs', placeholder: '15000', defaultValue: DEFAULT_SETTINGS.networkTimeoutMs, min: 1000, max: 60000, step: 1 }
 			},
+			{
+				name: locale.checkLabel,
+				desc: locale.checkDesc,
+				render: (setting) => this.addCheckButton(setting)
+			},
 		];
 	}
 
@@ -74,6 +79,19 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 			.onChange(async (value) => {
 				this.plugin.settings.tokenSecretId = value ?? '';
 				await this.plugin.saveSettings();
+			}));
+	}
+
+	private addCheckButton(setting: Setting): void {
+		setting.addButton(button => button
+			.setButtonText(this.plugin.locale.checkButton)
+			.onClick(async () => {
+				button.setDisabled(true);
+				try {
+					await this.plugin.checkConnection();
+				} finally {
+					button.setDisabled(false);
+				}
 			}));
 	}
 
@@ -118,5 +136,9 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 					this.plugin.settings.networkTimeoutMs = clampTimeout(value);
 					await this.plugin.saveSettings();
 				}));
+
+		this.addCheckButton(new Setting(containerEl)
+			.setName(locale.checkLabel)
+			.setDesc(locale.checkDesc));
 	}
 }
