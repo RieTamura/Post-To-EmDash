@@ -1,7 +1,7 @@
 {
 	"id": "post-to-emdash",
 	"name": "Post To EmDash",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"minAppVersion": "1.11.5",
 	"description": "Send notes to an EmDash site as blog posts, with images, tags and categories.",
 	"author": "RieTamura",
