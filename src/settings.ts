@@ -10,6 +10,8 @@ export interface PostToEmDashSettings {
 	 */
 	tokenSecretId: string;
 	uploadImages: boolean;
+	/** cover も本文の画像もない記事に、サイトのデザインで自動サムネイルを付ける */
+	autoThumbnail: boolean;
 	networkTimeoutMs: number;
 	/** 「EmDash の記事を新規作成」でノートを作るフォルダ。空なら保管庫のいちばん上 */
 	newPostFolder: string;
@@ -22,6 +24,7 @@ export const DEFAULT_SETTINGS: PostToEmDashSettings = {
 	siteUrl: '',
 	tokenSecretId: '',
 	uploadImages: true,
+	autoThumbnail: true,
 	networkTimeoutMs: 15000,
 	newPostFolder: '',
 	insertGuide: true,
@@ -60,6 +63,11 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 				name: locale.uploadImagesLabel,
 				desc: locale.uploadImagesDesc,
 				control: { type: 'toggle', key: 'uploadImages', defaultValue: DEFAULT_SETTINGS.uploadImages }
+			},
+			{
+				name: locale.autoThumbnailLabel,
+				desc: locale.autoThumbnailDesc,
+				control: { type: 'toggle', key: 'autoThumbnail', defaultValue: DEFAULT_SETTINGS.autoThumbnail }
 			},
 			{
 				name: locale.timeoutLabel,
@@ -165,6 +173,16 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 				.setValue(this.plugin.settings.uploadImages)
 				.onChange(async (value) => {
 					this.plugin.settings.uploadImages = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName(locale.autoThumbnailLabel)
+			.setDesc(locale.autoThumbnailDesc)
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.autoThumbnail)
+				.onChange(async (value) => {
+					this.plugin.settings.autoThumbnail = value;
 					await this.plugin.saveSettings();
 				}));
 
