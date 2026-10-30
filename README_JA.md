@@ -11,7 +11,7 @@ Obsidian で書いたノートを、[EmDash](https://github.com/emdash-cms/emdas
 - **このノートを EmDash に投稿**：今開いているノートを送る（コマンドかリボンのボタン）
   - 下書きで送る。frontmatter に `status: publish` と書いたときだけ、すぐ公開
   - 画像はアップロードして記事に入れる。アイキャッチは `cover` の画像、なければ本文の最初の画像
-  - どちらもなければ、サイトで決めたデザインにタイトルと日付を載せた**自動サムネイル**を作る（サイトに [auto-thumbnail](https://github.com/RieTamura/rietamura-site/tree/main/plugins/auto-thumbnail) プラグインが必要）
+  - どちらもなければ、サイトで決めたデザインにタイトルと日付を載せた**自動サムネイル**を作る（サイトに [Auto Thumbnail](https://github.com/RieTamura/Auto-Thumbnail) プラグインが必要）
   - カテゴリー・タグ・抜粋も送る。サイトに無いタグは作る
   - 一度送ったノートをもう一度送ると、同じ記事が更新される。管理画面で直されていたら、上書きしてよいかを聞く
 - 見出し・強調・リンク・入れ子の箇条書き・チェックボックス・引用・コールアウト・表・コードを変換する。`%%コメント%%` は送らない

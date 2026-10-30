@@ -11,7 +11,7 @@ Post a note written in Obsidian to an [EmDash](https://github.com/emdash-cms/emd
 - **Post this note to EmDash**: sends the open note (command or ribbon button)
   - Sent as a draft; published right away only when the frontmatter says `status: publish`
   - Images are uploaded and placed in the post. The featured image is `cover`, or the first image in the body
-  - With neither, an **automatic thumbnail** is made: the post's title and date on a design set on the site (the site needs the [auto-thumbnail](https://github.com/RieTamura/rietamura-site/tree/main/plugins/auto-thumbnail) plugin)
+  - With neither, an **automatic thumbnail** is made: the post's title and date on a design set on the site (the site needs the [Auto Thumbnail](https://github.com/RieTamura/Auto-Thumbnail) plugin)
   - Category, tags and excerpt are sent too. Tags the site lacks are created
   - Sending the same note again updates the same post. If it was edited in the admin, you are asked before overwriting
 - Converts headings, emphasis, links, nested lists, checkboxes, quotes, callouts, tables and code. `%%comments%%` are not sent
