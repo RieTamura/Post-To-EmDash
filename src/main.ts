@@ -6,9 +6,11 @@ import { convertMarkdown, type ImageBlock } from './convert';
 import { getLocale, type LocaleStrings } from './i18n';
 import { fillImageBlock, mimeTypeOf, parseCoverValue, toFeaturedImage, type FeaturedImage, type MediaItem } from './media';
 import { buildNewPostNote, safeFileName, uniquePath } from './new-post';
-import { FRONTMATTER_KEYS, noteBody, readNoteFields } from './note';
+import { FRONTMATTER_KEYS, noteBody, readNoteFields, type NoteFields } from './note';
 import { postUrl, sendPost, type PostInput, type PostResult } from './publish';
 import { resolveTaxonomies, UnknownCategoryError } from './taxonomy';
+import { DESIGN_PATH, formatDate, isAutoThumbnail, readDesign, THUMBNAIL_PREFIX } from './thumbnail';
+import { drawThumbnail, type Fetcher } from './thumbnail-draw';
 import { askTitle } from './title-modal';
 import { DEFAULT_SETTINGS, PostToEmDashSettingTab, type PostToEmDashSettings } from './settings';
 
@@ -194,6 +196,7 @@ export default class PostToEmDashPlugin extends Plugin {
 			const dropped = new Set<ImageBlock>();
 			const missing: string[] = [];
 			let featuredImage: FeaturedImage | undefined;
+			let thumbnailError: string | undefined;
 			if (this.settings.uploadImages) {
 				const cover = parseCoverValue(fields.cover);
 				const sources = [...new Set([...(cover ? [cover] : []), ...images.map((i) => i.asset.url ?? '')])].filter(Boolean);
@@ -218,6 +221,17 @@ export default class PostToEmDashPlugin extends Plugin {
 				const coverMedia = cover ? uploaded.get(cover) : undefined;
 				if (coverMedia) featuredImage = toFeaturedImage(coverMedia, '');
 				else if (first) featuredImage = toFeaturedImage(first.media, first.alt);
+
+				// どちらもなければ、サイトのデザインで自動サムネイルを作る。失敗しても記事は送る
+				if (!featuredImage && this.settings.autoThumbnail) {
+					progress.setMessage(locale.makingThumbnail);
+					try {
+						featuredImage = await this.makeAutoThumbnail(api, siteUrl, fields);
+					} catch (e) {
+						console.error('Post To EmDash: could not make the thumbnail', e);
+						thumbnailError = e instanceof EmDashError ? this.describeError(e) : e instanceof Error ? e.message : String(e);
+					}
+				}
 			} else {
 				images.forEach((i) => dropped.add(i));
 			}
@@ -251,6 +265,7 @@ export default class PostToEmDashPlugin extends Plugin {
 			progress.hide();
 			new Notice(this.resultMessage(fields.title, result), 8000);
 			if (missing.length) new Notice(locale.imagesMissing(missing), 10000);
+			if (thumbnailError) new Notice(locale.thumbnailFailed(thumbnailError), 10000);
 		} catch (e) {
 			console.error('Post To EmDash: posting failed', e);
 			progress.hide();
@@ -287,6 +302,46 @@ export default class PostToEmDashPlugin extends Plugin {
 		if (result.published) return locale.published(title);
 		if (result.created) return locale.postedDraft(title);
 		return result.hasLiveVersion ? locale.updatedDraftLiveKept(title) : locale.updatedDraft(title);
+	}
+
+	/**
+	 * サイトの auto-thumbnail プラグインのデザインに、タイトルと日付を載せた画像を作って
+	 * アップロードする。作らないとき（プラグインがない・サイトで選んだアイキャッチがある）は undefined
+	 */
+	private async makeAutoThumbnail(api: EmDashApi, siteUrl: string, fields: NoteFields): Promise<FeaturedImage | undefined> {
+		let date = new Date();
+		if (fields.id) {
+			try {
+				const { item } = await api.request<{ item: { data: Record<string, unknown>; publishedAt?: string | null } }>(
+					'GET', `/content/posts/${encodeURIComponent(fields.id)}`);
+				// 管理画面で選んだアイキャッチは上書きしない。前の自動サムネイルなら作り直す
+				const current = item.data.featured_image as { filename?: unknown } | null | undefined;
+				if (current && !isAutoThumbnail(current.filename)) return undefined;
+				if (item.publishedAt) date = new Date(item.publishedAt);
+			} catch (e) {
+				// サイトで削除されていたら、新しい記事として扱う（送るときに確かめる）
+				if (!(e instanceof EmDashError && e.status === 404)) throw e;
+			}
+		}
+
+		let design;
+		try {
+			design = readDesign(await api.request<unknown>('GET', DESIGN_PATH));
+		} catch (e) {
+			// サイトに auto-thumbnail プラグインが入っていない
+			if (e instanceof EmDashError && e.status === 404) return undefined;
+			throw e;
+		}
+
+		const fetcher: Fetcher = async (url) => {
+			const response = await requestUrl({ url, throw: false });
+			if (response.status < 200 || response.status >= 300) return null;
+			return { data: response.arrayBuffer, get text() { return response.text; } };
+		};
+		const png = await drawThumbnail(design, { title: fields.title, date: formatDate(date) }, siteUrl, fetcher);
+		const name = `${THUMBNAIL_PREFIX}-${formatDate(date).replace(/\./g, '')}.png`;
+		const media = await api.uploadImage({ name, data: png, type: 'image/png' });
+		return toFeaturedImage(media, fields.title);
 	}
 
 	/**

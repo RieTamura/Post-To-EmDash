@@ -26,6 +26,10 @@ export interface LocaleStrings {
 	tokenDesc: string;
 	uploadImagesLabel: string;
 	uploadImagesDesc: string;
+	autoThumbnailLabel: string;
+	autoThumbnailDesc: string;
+	makingThumbnail: string;
+	thumbnailFailed: (detail: string) => string;
 	timeoutLabel: string;
 	timeoutDesc: string;
 	noActiveNote: string;
@@ -78,7 +82,7 @@ const ja: LocaleStrings = {
 - excerpt：タイムラインに出る短い紹介文
 - category：サイトにあるカテゴリーの名前。無い名前だと送れない
 - tags：タグを付けるときは「tags: [タグ1, タグ2]」の行を足す。サイトに無いタグは新しく作られる
-- cover：アイキャッチの画像（例 [[表紙.png]]）。空なら本文の最初の画像
+- cover：アイキャッチの画像（例 [[表紙.png]]）。空なら本文の最初の画像。それもなければ自動サムネイル
 - status：draft（下書き）か publish（すぐ公開）
 送ると emdash_id・emdash_url・emdash_rev が書き足される。消すと次は別の記事として送られる`,
 	newPostFailed: (detail) => `ノートを作れませんでした（${detail}）。`,
@@ -98,6 +102,10 @@ const ja: LocaleStrings = {
 	tokenDesc: 'EmDash の管理画面「APIトークン」で作ったトークン（ec_pat_…）を Obsidian のキーチェーンに保存します。権限は content:read・content:write・media:write の3つが必要です。トークン本体はプラグインの設定ファイルには保存されません。',
 	uploadImagesLabel: '画像をアップロードする',
 	uploadImagesDesc: 'ノートの画像を EmDash にアップロードして記事に入れます。',
+	autoThumbnailLabel: '自動サムネイル',
+	autoThumbnailDesc: 'cover も本文の画像もない記事に、サイトで決めたデザインでタイトルと日付入りのアイキャッチを作って付けます。サイトに auto-thumbnail プラグインが必要です（ないときは何もしません）。管理画面で選んだアイキャッチは上書きしません。',
+	makingThumbnail: 'サムネイルを作っています…',
+	thumbnailFailed: (detail) => `サムネイルを作れなかったので、アイキャッチなしで送りました（${detail}）。`,
 	timeoutLabel: 'タイムアウト（ミリ秒）',
 	timeoutDesc: '通信を待つ時間。1000〜60000。',
 	noActiveNote: '投稿するノートを開いてください。',
@@ -150,7 +158,7 @@ const en: LocaleStrings = {
 - excerpt: a short summary shown on the timeline
 - category: the name of a category on the site. Unknown names cannot be sent
 - tags: to add tags, add a line "tags: [tag1, tag2]". Tags the site does not have are created
-- cover: the featured image (e.g. [[cover.png]]). Empty means the first image in the body
+- cover: the featured image (e.g. [[cover.png]]). Empty means the first image in the body, or else an automatic thumbnail
 - status: draft or publish (publish right away)
 Sending adds emdash_id, emdash_url and emdash_rev. Removing them makes the next send a new post`,
 	newPostFailed: (detail) => `Could not create the note (${detail}).`,
@@ -170,6 +178,10 @@ Sending adds emdash_id, emdash_url and emdash_rev. Removing them makes the next 
 	tokenDesc: 'A token made under "API Tokens" in the EmDash admin (ec_pat_…), kept in the Obsidian keychain. It needs the content:read, content:write and media:write scopes. The token itself is not written to the plugin settings file.',
 	uploadImagesLabel: 'Upload images',
 	uploadImagesDesc: 'Upload the images in the note to EmDash and put them in the post.',
+	autoThumbnailLabel: 'Automatic thumbnail',
+	autoThumbnailDesc: 'For a post with no cover and no image in the body, make a featured image with its title and date in the design set on the site. The site needs the auto-thumbnail plugin (without it, nothing happens). A featured image chosen in the admin is never replaced.',
+	makingThumbnail: 'Making the thumbnail…',
+	thumbnailFailed: (detail) => `Could not make the thumbnail, so the post was sent without a featured image (${detail}).`,
 	timeoutLabel: 'Timeout (ms)',
 	timeoutDesc: 'How long to wait for the site. 1000–60000.',
 	noActiveNote: 'Open the note you want to post.',
