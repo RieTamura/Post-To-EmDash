@@ -11,7 +11,7 @@ Post a note written in Obsidian to an [EmDash](https://github.com/emdash-cms/emd
 - **Post this note to EmDash**: sends the open note (command or ribbon button)
   - Sent as a draft; published right away only when the frontmatter says `status: publish`
   - Images are uploaded and placed in the post. The featured image is `cover`, or the first image in the body
-  - With neither, an **automatic thumbnail** is made: the post's title and date on a design set on the site (the site needs the [Auto Thumbnail](https://github.com/RieTamura/Auto-Thumbnail) plugin)
+  - With neither, an **automatic thumbnail** is made: the post's title and date on a design set on the site (the site needs the [Thumbnail Design for Post To EmDash](https://github.com/RieTamura/Auto-Thumbnail) plugin)
   - Category, tags and excerpt are sent too. Tags the site lacks are created
   - Sending the same note again updates the same post. If it was edited in the admin, you are asked before overwriting
 - Converts headings, emphasis, links, nested lists, checkboxes, quotes, callouts, tables and code. `%%comments%%` are not sent
@@ -60,7 +60,7 @@ Sending adds `emdash_id`, `emdash_url` and `emdash_rev`. Remove them and the nex
 | Site URL | The URL of your EmDash site |
 | Access token | A token made under "API Tokens" in the EmDash admin (`ec_pat_…`) with the `content:read`, `content:write` and `media:write` scopes |
 | Upload images | Whether to send the note's images to EmDash |
-| Automatic thumbnail | Whether to give a post with no `cover` and no image in the body an automatic thumbnail. Does nothing if the site lacks the auto-thumbnail plugin. A featured image chosen in the admin is never replaced |
+| Automatic thumbnail | Whether to give a post with no `cover` and no image in the body an automatic thumbnail. Does nothing if the site lacks the Thumbnail Design for Post To EmDash plugin. A featured image chosen in the admin is never replaced |
 | Timeout | How long to wait for the site (ms) |
 | Folder for new posts | Where "Create new EmDash post" puts the note |
 | Add field guide | Put a guide to the fields (`%% … %%`) in new posts |
