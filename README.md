@@ -9,7 +9,7 @@ Post a note written in Obsidian to an [EmDash](https://github.com/emdash-cms/emd
 - **Create new EmDash post**: asks for a title and creates a note with the fields ready to fill in
 - **Choose featured image**: pick an image from your image folder, shown with thumbnails, and put it in `cover`
 - **Post this note to EmDash**: sends the open note (command or ribbon button)
-  - Sent as a draft; published right away only when the frontmatter says `status: publish`
+  - Sent as a draft; published right away only when the `status` checkbox is checked
   - Images are uploaded and placed in the post. The featured image is `cover`, or the first image in the body
   - With neither, an **automatic thumbnail** is made: the post's title and date on a design set on the site (the site needs the [Auto Thumbnail Design](https://github.com/RieTamura/Auto-Thumbnail) plugin)
   - Category, tags and excerpt are sent too. Tags the site lacks are created
@@ -35,7 +35,7 @@ Post a note written in Obsidian to an [EmDash](https://github.com/emdash-cms/emd
 2. In the plugin settings, enter the site URL and the token, then select "Check"
 3. Run "Create new EmDash post" to make a note and write your post (or add the fields below to any note)
 4. Run "Post this note to EmDash" (or use the ribbon button). The first send arrives as a draft
-5. Check it in the admin and publish it there, or set `status: publish` and send again
+5. Check it in the admin and publish it there, or check `status` and send again
 
 ## Writing a note
 
@@ -47,9 +47,13 @@ excerpt: A short summary
 category: Development         # the name of a category on the site
 tags: [webdev, tools]         # leave out to keep the site's tags
 cover: "[[cover.png]]"        # featured image
-status: draft                 # draft or publish
+status: false                 # checkbox: unchecked = draft, checked = publish
 ---
 ```
+
+`status: publish` and `status: draft` from older notes still work.
+
+If Obsidian shows `status` as text, click the icon beside the property and choose **Property type → Checkbox**. This applies to every note in the vault.
 
 Sending adds `emdash_id`, `emdash_url` and `emdash_rev`. Remove them and the next send makes a new post.
 

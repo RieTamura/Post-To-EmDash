@@ -83,7 +83,7 @@ const ja: LocaleStrings = {
 - category：サイトにあるカテゴリーの名前。無い名前だと送れない
 - tags：タグを付けるときは「tags: [タグ1, タグ2]」の行を足す。サイトに無いタグは新しく作られる
 - cover：アイキャッチの画像（例 [[表紙.png]]）。空なら本文の最初の画像。それもなければ自動サムネイル
-- status：draft（下書き）か publish（すぐ公開）
+- status：チェックなしは下書き、チェックありはすぐ公開
 送ると emdash_id・emdash_url・emdash_rev が書き足される。消すと次は別の記事として送られる`,
 	newPostFailed: (detail) => `ノートを作れませんでした（${detail}）。`,
 	newPostFolderLabel: '新しい記事のフォルダ',
@@ -129,7 +129,7 @@ const ja: LocaleStrings = {
 	alreadyPosting: '前の投稿がまだ終わっていません。',
 	postedDraft: (title) => `「${title}」を下書きとして送りました。`,
 	updatedDraft: (title) => `「${title}」の下書きを更新しました。`,
-	updatedDraftLiveKept: (title) => `「${title}」の変更を下書きに保存しました。公開中の記事はそのままです（管理画面で公開するか、status: publish で送ってください）。`,
+	updatedDraftLiveKept: (title) => `「${title}」の変更を下書きに保存しました。公開中の記事はそのままです（管理画面で公開するか、status にチェックを入れて送ってください）。`,
 	published: (title) => `「${title}」を公開しました。`,
 	uploadingImage: (index, total) => `画像をアップロードしています（${index}/${total}）…`,
 	imagesMissing: (names) => `見つからなかった画像は外して送りました：${names.join('、')}`,
@@ -159,7 +159,7 @@ const en: LocaleStrings = {
 - category: the name of a category on the site. Unknown names cannot be sent
 - tags: to add tags, add a line "tags: [tag1, tag2]". Tags the site does not have are created
 - cover: the featured image (e.g. [[cover.png]]). Empty means the first image in the body, or else an automatic thumbnail
-- status: draft or publish (publish right away)
+- status: unchecked is a draft, checked publishes right away
 Sending adds emdash_id, emdash_url and emdash_rev. Removing them makes the next send a new post`,
 	newPostFailed: (detail) => `Could not create the note (${detail}).`,
 	newPostFolderLabel: 'Folder for new posts',
@@ -205,7 +205,7 @@ Sending adds emdash_id, emdash_url and emdash_rev. Removing them makes the next 
 	alreadyPosting: 'The previous post is still being sent.',
 	postedDraft: (title) => `Sent "${title}" as a draft.`,
 	updatedDraft: (title) => `Updated the draft of "${title}".`,
-	updatedDraftLiveKept: (title) => `Saved the changes to "${title}" as a draft. The published version stays as it is (publish it in the admin, or send with status: publish).`,
+	updatedDraftLiveKept: (title) => `Saved the changes to "${title}" as a draft. The published version stays as it is (publish it in the admin, or check status and send again).`,
 	published: (title) => `Published "${title}".`,
 	uploadingImage: (index, total) => `Uploading images (${index}/${total})…`,
 	imagesMissing: (names) => `These images were not found and were left out: ${names.join(', ')}`,
