@@ -40,14 +40,20 @@ function readTags(value: unknown): string[] | undefined {
 	return [...new Set(tags)];
 }
 
+/** チェックボックス（true）のほか、前の書き方の status: publish も公開として読む */
+function readPublish(status: unknown): boolean {
+	if (typeof status === 'boolean') return status;
+	const value = text(status)?.toLowerCase();
+	return value === 'true' || value === 'publish' || value === 'published';
+}
+
 export function readNoteFields(frontmatter: Record<string, unknown> | undefined, basename: string): NoteFields {
 	const fm = frontmatter ?? {};
-	const status = text(fm.status)?.toLowerCase();
 	return {
 		title: text(fm.title) ?? basename,
 		slug: text(fm.slug),
 		excerpt: text(fm.excerpt),
-		publish: status === 'publish' || status === 'published',
+		publish: readPublish(fm.status),
 		id: text(fm[FRONTMATTER_KEYS.id]),
 		rev: text(fm[FRONTMATTER_KEYS.rev]),
 		category: text(Array.isArray(fm.category) ? fm.category[0] : fm.category),

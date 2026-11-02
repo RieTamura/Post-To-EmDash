@@ -41,7 +41,8 @@ export function buildNewPostNote(title: string, guide: string | null): string {
 		'category:',
 		// tags は入れない。空のまま送ると、管理画面で付けたタグが外れるため
 		'cover:',
-		'status: draft',
+		// チェックボックスで表示される。チェックなしは下書き、チェックありは公開
+		'status: false',
 		'---',
 		'',
 	];

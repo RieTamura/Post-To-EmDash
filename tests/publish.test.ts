@@ -33,6 +33,17 @@ describe('readNoteFields', () => {
 		});
 	});
 
+	it('status のチェックボックス：チェックありは公開、なしは下書き', () => {
+		expect(readNoteFields({ status: true }, 'n').publish).toBe(true);
+		expect(readNoteFields({ status: false }, 'n').publish).toBe(false);
+	});
+
+	it('前の書き方の status: publish も公開として読む', () => {
+		expect(readNoteFields({ status: 'publish' }, 'n').publish).toBe(true);
+		expect(readNoteFields({ status: 'published' }, 'n').publish).toBe(true);
+		expect(readNoteFields({ status: 'true' }, 'n').publish).toBe(true);
+	});
+
 	it('status: draft や空のタイトルは下書き・ファイル名', () => {
 		const f = readNoteFields({ title: '', status: 'draft' }, 'n');
 		expect(f.title).toBe('n');

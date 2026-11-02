@@ -44,7 +44,7 @@ describe('buildNewPostNote', () => {
 			'excerpt:',
 			'category:',
 			'cover:',
-			'status: draft',
+			'status: false',
 			'---',
 			'',
 			'%%',
