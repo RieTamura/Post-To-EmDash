@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fontCssUrl, formatDate, isAutoThumbnail, parseFontCss, readDesign, splitTokens, wrapText } from '../src/thumbnail';
+import { fontCssUrl, formatDate, isAutoThumbnail, logoLayout, metaLayout, parseFontCss, readDesign, splitTokens, wrapText } from '../src/thumbnail';
 
 /** 1文字を1の幅として測る */
 const measure = (s: string) => [...s].length;
@@ -9,12 +9,12 @@ describe('readDesign', () => {
 		const design = readDesign({
 			width: 1200, height: 630,
 			background: { color: '#112233', image: '/_emdash/api/plugins/auto-thumbnail/image?kind=background', overlay: true },
-			textColor: '#ffffff', font: 'Noto Sans JP', siteName: ' りえたむら ', logo: '/_emdash/api/plugins/auto-thumbnail/image?kind=logo',
+			textColor: '#ffffff', font: 'Noto Sans JP', siteName: ' りえたむら ', logo: '/_emdash/api/plugins/auto-thumbnail/image?kind=logo', logoShape: 'circle', datePosition: 'right', logoPosition: 'left',
 		});
 		expect(design).toEqual({
 			width: 1200, height: 630,
 			background: { color: '#112233', image: '/_emdash/api/plugins/auto-thumbnail/image?kind=background', overlay: true },
-			textColor: '#ffffff', font: 'Noto Sans JP', siteName: 'りえたむら', logo: '/_emdash/api/plugins/auto-thumbnail/image?kind=logo',
+			textColor: '#ffffff', font: 'Noto Sans JP', siteName: 'りえたむら', logo: '/_emdash/api/plugins/auto-thumbnail/image?kind=logo', logoShape: 'circle', datePosition: 'right', logoPosition: 'left',
 		});
 	});
 
@@ -26,9 +26,65 @@ describe('readDesign', () => {
 		expect(design).toEqual({
 			width: 1200, height: 630,
 			background: { color: '#F5E6D3', image: null, overlay: false },
-			textColor: '#3A2E25', font: 'Zen Maru Gothic', siteName: null, logo: null,
+			textColor: '#3A2E25', font: 'Zen Maru Gothic', siteName: null, logo: null, logoShape: 'original', datePosition: 'left', logoPosition: 'right',
 		});
 		expect(readDesign(null).font).toBe('Zen Maru Gothic');
+	});
+});
+
+describe('readDesign の logoShape', () => {
+	it('古いプラグインの返事や知らない形は original にする', () => {
+		expect(readDesign({}).logoShape).toBe('original');
+		expect(readDesign({ logoShape: 'star' }).logoShape).toBe('original');
+		expect(readDesign({ logoShape: 'square' }).logoShape).toBe('square');
+	});
+});
+
+describe('logoLayout', () => {
+	it('original は全体を、比を変えずに枠へ収める', () => {
+		const layout = logoLayout(200, 100, 56, 'original');
+		expect(layout.source).toEqual({ x: 0, y: 0, width: 200, height: 100 });
+		expect(layout.width).toBeCloseTo(56);
+		expect(layout.height).toBeCloseTo(28);
+		expect(layout.radius).toBe(0);
+	});
+
+	it('横長・縦長の画像は中央を正方形に切り抜く', () => {
+		expect(logoLayout(200, 100, 56, 'square')).toEqual({ source: { x: 50, y: 0, width: 100, height: 100 }, width: 56, height: 56, radius: 12 });
+		expect(logoLayout(100, 200, 56, 'circle')).toEqual({ source: { x: 0, y: 50, width: 100, height: 100 }, width: 56, height: 56, radius: 28 });
+	});
+});
+
+describe('readDesign の場所', () => {
+	it('古いプラグインの返事や知らない値は、日付を左、ロゴを右にする', () => {
+		expect(readDesign({})).toMatchObject({ datePosition: 'left', logoPosition: 'right' });
+		expect(readDesign({ datePosition: 'top', logoPosition: 'top' })).toMatchObject({ datePosition: 'left', logoPosition: 'right' });
+	});
+});
+
+describe('metaLayout', () => {
+	const base = { width: 1200, padding: 72, baseline: 558, dateWidth: 200, logoWidth: 56, nameWidth: 150 };
+
+	it('日付が左、ロゴが右なら、これまでと同じ並びになる', () => {
+		expect(metaLayout({ ...base, datePosition: 'left', logoPosition: 'right' })).toEqual({ dateX: 72, dateBaseline: 558, logoX: 906, nameX: 978 });
+	});
+
+	it('左右を入れ替えられる', () => {
+		expect(metaLayout({ ...base, datePosition: 'right', logoPosition: 'left' })).toEqual({ dateX: 928, dateBaseline: 558, logoX: 72, nameX: 144 });
+	});
+
+	it('同じ側なら、日付を上の段に置く', () => {
+		expect(metaLayout({ ...base, datePosition: 'left', logoPosition: 'left' })).toEqual({ dateX: 72, dateBaseline: 498, logoX: 72, nameX: 144 });
+		expect(metaLayout({ ...base, datePosition: 'right', logoPosition: 'right' })).toEqual({ dateX: 928, dateBaseline: 498, logoX: 906, nameX: 978 });
+	});
+
+	it('ロゴもサイト名もなければ、同じ側でも日付は下の段のまま', () => {
+		const layout = metaLayout({ ...base, logoWidth: 0, nameWidth: 0, datePosition: 'right', logoPosition: 'right' });
+		expect(layout).toMatchObject({ dateX: 928, dateBaseline: 558 });
+	});
+
+	it('サイト名がなければ、ロゴを端まで寄せる', () => {
+		expect(metaLayout({ ...base, nameWidth: 0, datePosition: 'left', logoPosition: 'right' }).logoX).toBe(1072);
 	});
 });
 

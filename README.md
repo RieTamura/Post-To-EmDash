@@ -8,6 +8,7 @@ Post a note written in Obsidian to an [EmDash](https://github.com/emdash-cms/emd
 
 - **Create new EmDash post**: asks for a title and creates a note with the fields ready to fill in
 - **Choose featured image**: pick an image from your image folder, shown with thumbnails, and put it in `cover`
+- **Preview thumbnail**: draws a sample with the design saved on the site and shows it, without posting or uploading anything (command or a button in the settings)
 - **Post this note to EmDash**: sends the open note (command or ribbon button)
   - Sent as a draft; published right away only when the `status` checkbox is checked
   - Images are uploaded and placed in the post. The featured image is `cover`, or the first image in the body
@@ -70,6 +71,7 @@ Sending adds `emdash_id`, `emdash_url` and `emdash_rev`. Remove them and the nex
 | Add field guide | Put a guide to the fields (`%% … %%`) in new posts |
 | Image folder | Images offered by "Choose featured image". Empty means every image in the vault |
 | Check connection | Try reading posts with the URL and token |
+| Preview thumbnail | Show a sample of the automatic thumbnail in the design saved on the site |
 
 The token is kept in the Obsidian keychain, not in the plugin's `data.json`, so syncing your vault does not spread it. The keychain is per device, so enter it on each computer and phone.
 

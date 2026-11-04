@@ -5,6 +5,14 @@
 	width: 100%;
 }
 
+/* サムネイルのプレビュー：縦横の比を保って、枠の幅に合わせる */
+.post-to-emdash-thumbnail-preview {
+	display: block;
+	width: 100%;
+	height: auto;
+	border-radius: var(--radius-s);
+}
+
 /* 「アイキャッチを選ぶ」の一覧：小さな絵と名前 */
 .post-to-emdash-cover-item {
 	display: flex;

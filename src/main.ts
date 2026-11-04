@@ -11,6 +11,7 @@ import { postUrl, sendPost, type PostInput, type PostResult } from './publish';
 import { resolveTaxonomies, UnknownCategoryError } from './taxonomy';
 import { DESIGN_PATH, formatDate, isAutoThumbnail, readDesign, THUMBNAIL_PREFIX } from './thumbnail';
 import { drawThumbnail, type Fetcher } from './thumbnail-draw';
+import { ThumbnailPreviewModal } from './thumbnail-preview-modal';
 import { askTitle } from './title-modal';
 import { DEFAULT_SETTINGS, PostToEmDashSettingTab, type PostToEmDashSettings } from './settings';
 
@@ -54,6 +55,12 @@ export default class PostToEmDashPlugin extends Plugin {
 				if (!checking) this.pickCover(file);
 				return true;
 			},
+		});
+
+		this.addCommand({
+			id: 'preview-thumbnail',
+			name: this.locale.commandPreviewThumbnail,
+			callback: () => void this.previewThumbnail(),
 		});
 
 		this.addRibbonIcon('file-plus', this.locale.ribbonNewPost, () => void this.createNewPost());
@@ -111,6 +118,28 @@ export default class PostToEmDashPlugin extends Plugin {
 		if (e.status === 403) return locale.errForbidden(e.message);
 		if (e.status === 404) return locale.errNotFound;
 		return locale.errOther(e.status, e.message);
+	}
+
+	/** サイトのデザインで見本を描いて見せる。投稿もアップロードもしない */
+	async previewThumbnail(): Promise<void> {
+		const api = this.createApi();
+		if (typeof api === 'string') {
+			new Notice(api);
+			return;
+		}
+		const locale = this.locale;
+		const notice = new Notice(locale.makingThumbnail, 0);
+		try {
+			const design = readDesign(await api.request<unknown>('GET', DESIGN_PATH));
+			const siteUrl = normalizeSiteUrl(this.settings.siteUrl) ?? this.settings.siteUrl;
+			const png = await drawThumbnail(design, { title: locale.previewSampleTitle, date: formatDate(new Date()) }, siteUrl, this.thumbnailFetcher);
+			notice.hide();
+			new ThumbnailPreviewModal(this.app, locale.previewHeading, png, locale.previewHeading).open();
+		} catch (e) {
+			console.error('Post To EmDash: thumbnail preview failed', e);
+			notice.setMessage(e instanceof EmDashError && e.status === 404 ? locale.previewNoPlugin : this.describeError(e));
+			window.setTimeout(() => notice.hide(), 6000);
+		}
 	}
 
 	async checkConnection(): Promise<void> {
@@ -304,6 +333,13 @@ export default class PostToEmDashPlugin extends Plugin {
 		return result.hasLiveVersion ? locale.updatedDraftLiveKept(title) : locale.updatedDraft(title);
 	}
 
+	/** サムネイルの画像とフォントを読む */
+	private readonly thumbnailFetcher: Fetcher = async (url) => {
+		const response = await requestUrl({ url, throw: false });
+		if (response.status < 200 || response.status >= 300) return null;
+		return { data: response.arrayBuffer, get text() { return response.text; } };
+	};
+
 	/**
 	 * サイトの auto-thumbnail プラグインのデザインに、タイトルと日付を載せた画像を作って
 	 * アップロードする。作らないとき（プラグインがない・サイトで選んだアイキャッチがある）は undefined
@@ -333,12 +369,7 @@ export default class PostToEmDashPlugin extends Plugin {
 			throw e;
 		}
 
-		const fetcher: Fetcher = async (url) => {
-			const response = await requestUrl({ url, throw: false });
-			if (response.status < 200 || response.status >= 300) return null;
-			return { data: response.arrayBuffer, get text() { return response.text; } };
-		};
-		const png = await drawThumbnail(design, { title: fields.title, date: formatDate(date) }, siteUrl, fetcher);
+		const png = await drawThumbnail(design, { title: fields.title, date: formatDate(date) }, siteUrl, this.thumbnailFetcher);
 		const name = `${THUMBNAIL_PREFIX}-${formatDate(date).replace(/\./g, '')}.png`;
 		const media = await api.uploadImage({ name, data: png, type: 'image/png' });
 		return toFeaturedImage(media, fields.title);

@@ -30,6 +30,13 @@ export interface LocaleStrings {
 	autoThumbnailDesc: string;
 	makingThumbnail: string;
 	thumbnailFailed: (detail: string) => string;
+	commandPreviewThumbnail: string;
+	previewLabel: string;
+	previewDesc: string;
+	previewButton: string;
+	previewHeading: string;
+	previewSampleTitle: string;
+	previewNoPlugin: string;
 	timeoutLabel: string;
 	timeoutDesc: string;
 	noActiveNote: string;
@@ -106,6 +113,13 @@ const ja: LocaleStrings = {
 	autoThumbnailDesc: 'cover も本文の画像もない記事に、サイトで決めたデザインでタイトルと日付入りのアイキャッチを作って付けます。サイトに Auto Thumbnail Design プラグインが必要です（ないときは何もしません）。管理画面で選んだアイキャッチは上書きしません。',
 	makingThumbnail: 'サムネイルを作っています…',
 	thumbnailFailed: (detail) => `サムネイルを作れなかったので、アイキャッチなしで送りました（${detail}）。`,
+	commandPreviewThumbnail: 'サムネイルをプレビュー',
+	previewLabel: 'サムネイルをプレビュー',
+	previewDesc: 'サイトで保存したデザインで見本を描いて表示します。投稿やアップロードはしません。',
+	previewButton: 'プレビュー',
+	previewHeading: 'サムネイルのプレビュー',
+	previewSampleTitle: '記事のタイトルがここに入ります',
+	previewNoPlugin: 'サイトに Auto Thumbnail Design プラグインが入っていないので、プレビューできません。',
 	timeoutLabel: 'タイムアウト（ミリ秒）',
 	timeoutDesc: '通信を待つ時間。1000〜60000。',
 	noActiveNote: '投稿するノートを開いてください。',
@@ -182,6 +196,13 @@ Sending adds emdash_id, emdash_url and emdash_rev. Removing them makes the next 
 	autoThumbnailDesc: 'For a post with no cover and no image in the body, make a featured image with its title and date in the design set on the site. The site needs the Auto Thumbnail Design plugin (without it, nothing happens). A featured image chosen in the admin is never replaced.',
 	makingThumbnail: 'Making the thumbnail…',
 	thumbnailFailed: (detail) => `Could not make the thumbnail, so the post was sent without a featured image (${detail}).`,
+	commandPreviewThumbnail: 'Preview thumbnail',
+	previewLabel: 'Preview thumbnail',
+	previewDesc: 'Draw a sample with the design saved on the site and show it. Nothing is posted or uploaded.',
+	previewButton: 'Preview',
+	previewHeading: 'Thumbnail preview',
+	previewSampleTitle: 'Your post title goes here',
+	previewNoPlugin: 'The site does not have the Auto Thumbnail Design plugin, so there is nothing to preview.',
 	timeoutLabel: 'Timeout (ms)',
 	timeoutDesc: 'How long to wait for the site. 1000–60000.',
 	noActiveNote: 'Open the note you want to post.',

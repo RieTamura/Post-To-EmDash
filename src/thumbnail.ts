@@ -1,5 +1,8 @@
 /** 自動サムネイルの、描く前の準備（obsidian を import しない） */
 
+export type LogoShape = 'original' | 'square' | 'circle';
+export type Position = 'left' | 'right';
+
 /** サイトの auto-thumbnail プラグインが返すデザイン */
 export interface ThumbnailDesign {
 	width: number;
@@ -17,6 +20,12 @@ export interface ThumbnailDesign {
 	siteName: string | null;
 	/** サイトからの相対 URL */
 	logo: string | null;
+	/** ロゴの切り抜き方。古いプラグインは送ってこないので、そのときは original */
+	logoShape: LogoShape;
+	/** 日付を下の段のどちら側に置くか。古いプラグインは送ってこないので、そのときは left */
+	datePosition: Position;
+	/** ロゴとサイト名を下の段のどちら側に置くか。古いプラグインは送ってこないので、そのときは right */
+	logoPosition: Position;
 }
 
 /** デザインを返す窓口（サイトの auto-thumbnail プラグイン） */
@@ -27,6 +36,12 @@ export const THUMBNAIL_PREFIX = 'auto-thumbnail';
 
 const COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 const FONT = /^[A-Za-z0-9 ]{1,60}$/;
+/** 四角のロゴの角の丸み（56px のロゴに対して） */
+const LOGO_SQUARE_RADIUS = 12;
+/** ロゴとサイト名のあいだ */
+const LOGO_NAME_GAP = 16;
+/** 日付がロゴやサイト名と同じ側に来たとき、日付を上げる高さ */
+const META_ROW_GAP = 60;
 
 function relativeUrl(value: unknown): string | null {
 	return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? value : null;
@@ -50,6 +65,60 @@ export function readDesign(raw: unknown): ThumbnailDesign {
 		font: typeof d.font === 'string' && FONT.test(d.font) ? d.font : 'Zen Maru Gothic',
 		siteName: typeof d.siteName === 'string' && d.siteName.trim() ? d.siteName.trim() : null,
 		logo: relativeUrl(d.logo),
+		logoShape: d.logoShape === 'square' || d.logoShape === 'circle' ? d.logoShape : 'original',
+		datePosition: d.datePosition === 'right' ? 'right' : 'left',
+		logoPosition: d.logoPosition === 'left' ? 'left' : 'right',
+	};
+}
+
+/**
+ * 下の段の並び。x はどれも左端の位置。
+ * ロゴは常にサイト名の左に並べる。日付と同じ側なら、重ならないよう日付を上の段に置く
+ */
+export function metaLayout(options: {
+	width: number;
+	padding: number;
+	baseline: number;
+	dateWidth: number;
+	/** ロゴがなければ 0 */
+	logoWidth: number;
+	/** サイト名がなければ 0 */
+	nameWidth: number;
+	datePosition: Position;
+	logoPosition: Position;
+}): { dateX: number; dateBaseline: number; logoX: number; nameX: number } {
+	const { width, padding, baseline, dateWidth, logoWidth, nameWidth, datePosition, logoPosition } = options;
+	const gap = logoWidth > 0 && nameWidth > 0 ? LOGO_NAME_GAP : 0;
+	const groupWidth = logoWidth + gap + nameWidth;
+	const logoX = logoPosition === 'left' ? padding : width - padding - groupWidth;
+	return {
+		dateX: datePosition === 'left' ? padding : width - padding - dateWidth,
+		dateBaseline: groupWidth > 0 && datePosition === logoPosition ? baseline - META_ROW_GAP : baseline,
+		logoX,
+		nameX: logoX + logoWidth + gap,
+	};
+}
+
+/**
+ * ロゴを描く大きさと、画像のどこを使うか。
+ * original は全体を縮めて枠に収める。square と circle は中央を正方形に切り抜いて枠いっぱいに描く
+ */
+export function logoLayout(imageWidth: number, imageHeight: number, size: number, shape: LogoShape): {
+	source: { x: number; y: number; width: number; height: number };
+	width: number;
+	height: number;
+	radius: number;
+} {
+	if (shape === 'original') {
+		const scale = size / Math.max(imageWidth, imageHeight);
+		return { source: { x: 0, y: 0, width: imageWidth, height: imageHeight }, width: imageWidth * scale, height: imageHeight * scale, radius: 0 };
+	}
+	const side = Math.min(imageWidth, imageHeight);
+	return {
+		source: { x: (imageWidth - side) / 2, y: (imageHeight - side) / 2, width: side, height: side },
+		width: size,
+		height: size,
+		radius: shape === 'circle' ? size / 2 : LOGO_SQUARE_RADIUS,
 	};
 }
 

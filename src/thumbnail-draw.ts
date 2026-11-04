@@ -1,4 +1,4 @@
-import { fontCssUrl, parseFontCss, wrapText, type ThumbnailDesign } from './thumbnail';
+import { fontCssUrl, logoLayout, metaLayout, parseFontCss, wrapText, type ThumbnailDesign } from './thumbnail';
 
 /** URL の中身を読む。失敗したら null（Obsidian では requestUrl） */
 export type Fetcher = (url: string) => Promise<{ data: ArrayBuffer; text: string } | null>;
@@ -102,23 +102,35 @@ export async function drawThumbnail(
 	const lineHeight = title.size * 1.45;
 	title.lines.forEach((line, i) => ctx.fillText(line, PADDING, PADDING + title.size + i * lineHeight));
 
-	// 下の段：左に日付、右にロゴとサイト名
+	// 下の段：日付と、ロゴとサイト名を、デザインで選んだ側に置く
 	const baseline = height - PADDING;
 	ctx.font = `500 ${META_SIZE}px ${fontFamily}`;
-	ctx.fillText(text.date, PADDING, baseline);
-	let right = width - PADDING;
-	if (design.siteName) {
-		ctx.textAlign = 'right';
-		ctx.fillText(design.siteName, right, baseline);
-		ctx.textAlign = 'left';
-		right -= ctx.measureText(design.siteName).width + 16;
-	}
-	if (logo) {
-		const scale = LOGO_SIZE / Math.max(logo.width, logo.height);
-		const w = logo.width * scale;
-		const h = logo.height * scale;
+	const logoBox = logo && logoLayout(logo.width, logo.height, LOGO_SIZE, design.logoShape);
+	const meta = metaLayout({
+		width,
+		padding: PADDING,
+		baseline,
+		dateWidth: ctx.measureText(text.date).width,
+		logoWidth: logoBox?.width ?? 0,
+		nameWidth: design.siteName ? ctx.measureText(design.siteName).width : 0,
+		datePosition: design.datePosition,
+		logoPosition: design.logoPosition,
+	});
+	ctx.fillText(text.date, meta.dateX, meta.dateBaseline);
+	if (design.siteName) ctx.fillText(design.siteName, meta.nameX, baseline);
+	if (logo && logoBox) {
+		const { source, width: w, height: h, radius } = logoBox;
+		const x = meta.logoX;
 		// 文字の真ん中の高さにそろえる
-		ctx.drawImage(logo, right - w, baseline - META_SIZE * 0.35 - h / 2, w, h);
+		const y = baseline - META_SIZE * 0.35 - h / 2;
+		ctx.save();
+		if (radius > 0) {
+			ctx.beginPath();
+			ctx.roundRect(x, y, w, h, radius);
+			ctx.clip();
+		}
+		ctx.drawImage(logo, source.x, source.y, source.width, source.height, x, y, w, h);
+		ctx.restore();
 	}
 
 	const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));

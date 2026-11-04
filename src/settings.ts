@@ -94,6 +94,11 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 				desc: locale.checkDesc,
 				render: (setting) => this.addCheckButton(setting)
 			},
+			{
+				name: locale.previewLabel,
+				desc: locale.previewDesc,
+				render: (setting) => this.addPreviewButton(setting)
+			},
 		];
 	}
 
@@ -120,6 +125,19 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 				button.setDisabled(true);
 				try {
 					await this.plugin.checkConnection();
+				} finally {
+					button.setDisabled(false);
+				}
+			}));
+	}
+
+	private addPreviewButton(setting: Setting): void {
+		setting.addButton(button => button
+			.setButtonText(this.plugin.locale.previewButton)
+			.onClick(async () => {
+				button.setDisabled(true);
+				try {
+					await this.plugin.previewThumbnail();
 				} finally {
 					button.setDisabled(false);
 				}
@@ -214,6 +232,10 @@ export class PostToEmDashSettingTab extends PluginSettingTab {
 		this.addCheckButton(new Setting(containerEl)
 			.setName(locale.checkLabel)
 			.setDesc(locale.checkDesc));
+
+		this.addPreviewButton(new Setting(containerEl)
+			.setName(locale.previewLabel)
+			.setDesc(locale.previewDesc));
 	}
 }
 
