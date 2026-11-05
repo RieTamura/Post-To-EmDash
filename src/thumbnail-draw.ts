@@ -1,4 +1,4 @@
-import { fontCssUrl, logoLayout, metaLayout, parseFontCss, wrapText, type ThumbnailDesign } from './thumbnail';
+import { fontCssUrl, logoLayout, META_SIZES, metaLayout, parseFontCss, wrapText, type ThumbnailDesign } from './thumbnail';
 
 /** URL の中身を読む。失敗したら null（Obsidian では requestUrl） */
 export type Fetcher = (url: string) => Promise<{ data: ArrayBuffer; text: string } | null>;
@@ -6,8 +6,6 @@ export type Fetcher = (url: string) => Promise<{ data: ArrayBuffer; text: string
 const PADDING = 72;
 const TITLE_SIZES = [64, 56, 48];
 const TITLE_MAX_LINES = 3;
-const META_SIZE = 30;
-const LOGO_SIZE = 56;
 
 /** Google Fonts からフォントを読み込む。読めなければ、ふつうのゴシック体で描く */
 async function loadFont(design: ThumbnailDesign, text: string, fetch: Fetcher): Promise<string> {
@@ -104,8 +102,9 @@ export async function drawThumbnail(
 
 	// 下の段：日付と、ロゴとサイト名を、デザインで選んだ側に置く
 	const baseline = height - PADDING;
-	ctx.font = `500 ${META_SIZE}px ${fontFamily}`;
-	const logoBox = logo && logoLayout(logo.width, logo.height, LOGO_SIZE, design.logoShape);
+	const metaSize = META_SIZES[design.metaSize];
+	ctx.font = `500 ${metaSize.text}px ${fontFamily}`;
+	const logoBox = logo && logoLayout(logo.width, logo.height, metaSize.logo, design.logoShape);
 	const meta = metaLayout({
 		width,
 		padding: PADDING,
@@ -115,6 +114,7 @@ export async function drawThumbnail(
 		nameWidth: design.siteName ? ctx.measureText(design.siteName).width : 0,
 		datePosition: design.datePosition,
 		logoPosition: design.logoPosition,
+		scale: metaSize.text / META_SIZES.normal.text,
 	});
 	ctx.fillText(text.date, meta.dateX, meta.dateBaseline);
 	if (design.siteName) ctx.fillText(design.siteName, meta.nameX, baseline);
@@ -122,7 +122,7 @@ export async function drawThumbnail(
 		const { source, width: w, height: h, radius } = logoBox;
 		const x = meta.logoX;
 		// 文字の真ん中の高さにそろえる
-		const y = baseline - META_SIZE * 0.35 - h / 2;
+		const y = baseline - metaSize.text * 0.35 - h / 2;
 		ctx.save();
 		if (radius > 0) {
 			ctx.beginPath();

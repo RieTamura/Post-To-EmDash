@@ -2,6 +2,7 @@
 
 export type LogoShape = 'original' | 'square' | 'circle';
 export type Position = 'left' | 'right';
+export type MetaSize = 'normal' | 'large' | 'xlarge';
 
 /** サイトの auto-thumbnail プラグインが返すデザイン */
 export interface ThumbnailDesign {
@@ -26,6 +27,8 @@ export interface ThumbnailDesign {
 	datePosition: Position;
 	/** ロゴとサイト名を下の段のどちら側に置くか。古いプラグインは送ってこないので、そのときは right */
 	logoPosition: Position;
+	/** ロゴ、サイト名、日付をまとめた大きさ。古いプラグインは送ってこないので、そのときは normal */
+	metaSize: MetaSize;
 }
 
 /** デザインを返す窓口（サイトの auto-thumbnail プラグイン） */
@@ -36,12 +39,20 @@ export const THUMBNAIL_PREFIX = 'auto-thumbnail';
 
 const COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
 const FONT = /^[A-Za-z0-9 ]{1,60}$/;
-/** 四角のロゴの角の丸み（56px のロゴに対して） */
+/** 大きさごとの、文字とロゴの px */
+export const META_SIZES: Record<MetaSize, { text: number; logo: number }> = {
+	normal: { text: 30, logo: 56 },
+	large: { text: 38, logo: 72 },
+	xlarge: { text: 46, logo: 88 },
+};
+/** 四角のロゴの角の丸み（56px のロゴに対して。ロゴの大きさに合わせて増やす） */
 const LOGO_SQUARE_RADIUS = 12;
-/** ロゴとサイト名のあいだ */
+/** ロゴとサイト名のあいだ（normal のとき） */
 const LOGO_NAME_GAP = 16;
-/** 日付がロゴやサイト名と同じ側に来たとき、日付を上げる高さ */
+/** 日付を上の段に上げる高さ（normal のとき） */
 const META_ROW_GAP = 60;
+/** 日付とサイト名を同じ段に置くのに、最低限あける幅 */
+const META_MIN_GAP = 32;
 
 function relativeUrl(value: unknown): string | null {
 	return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') ? value : null;
@@ -68,12 +79,14 @@ export function readDesign(raw: unknown): ThumbnailDesign {
 		logoShape: d.logoShape === 'square' || d.logoShape === 'circle' ? d.logoShape : 'original',
 		datePosition: d.datePosition === 'right' ? 'right' : 'left',
 		logoPosition: d.logoPosition === 'left' ? 'left' : 'right',
+		metaSize: d.metaSize === 'large' || d.metaSize === 'xlarge' ? d.metaSize : 'normal',
 	};
 }
 
 /**
  * 下の段の並び。x はどれも左端の位置。
- * ロゴは常にサイト名の左に並べる。日付と同じ側なら、重ならないよう日付を上の段に置く
+ * ロゴは常にサイト名の左に並べる。日付と同じ側か、反対側でも入りきらないときは、
+ * 重ならないよう日付を上の段に置く。scale は normal を 1 とした大きさで、すき間をこれに合わせる
  */
 export function metaLayout(options: {
 	width: number;
@@ -86,14 +99,16 @@ export function metaLayout(options: {
 	nameWidth: number;
 	datePosition: Position;
 	logoPosition: Position;
+	scale?: number;
 }): { dateX: number; dateBaseline: number; logoX: number; nameX: number } {
-	const { width, padding, baseline, dateWidth, logoWidth, nameWidth, datePosition, logoPosition } = options;
-	const gap = logoWidth > 0 && nameWidth > 0 ? LOGO_NAME_GAP : 0;
+	const { width, padding, baseline, dateWidth, logoWidth, nameWidth, datePosition, logoPosition, scale = 1 } = options;
+	const gap = logoWidth > 0 && nameWidth > 0 ? Math.round(LOGO_NAME_GAP * scale) : 0;
 	const groupWidth = logoWidth + gap + nameWidth;
 	const logoX = logoPosition === 'left' ? padding : width - padding - groupWidth;
+	const collides = groupWidth + META_MIN_GAP + dateWidth > width - padding * 2;
 	return {
 		dateX: datePosition === 'left' ? padding : width - padding - dateWidth,
-		dateBaseline: groupWidth > 0 && datePosition === logoPosition ? baseline - META_ROW_GAP : baseline,
+		dateBaseline: groupWidth > 0 && (datePosition === logoPosition || collides) ? baseline - Math.round(META_ROW_GAP * scale) : baseline,
 		logoX,
 		nameX: logoX + logoWidth + gap,
 	};
@@ -118,7 +133,7 @@ export function logoLayout(imageWidth: number, imageHeight: number, size: number
 		source: { x: (imageWidth - side) / 2, y: (imageHeight - side) / 2, width: side, height: side },
 		width: size,
 		height: size,
-		radius: shape === 'circle' ? size / 2 : LOGO_SQUARE_RADIUS,
+		radius: shape === 'circle' ? size / 2 : (size * LOGO_SQUARE_RADIUS) / 56,
 	};
 }
 
