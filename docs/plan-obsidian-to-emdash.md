@@ -330,3 +330,23 @@ status: draft
 - 2026-11-04：0.4.0（commit `b29081f`）の自動レビューは Completed。リリースの証明・依存関係・難読化なし・ビルドの再現・保管庫の読み書きはすべて Pass で、保管庫のファイル一覧の「参考」だけ（いつも通り）。
 - 2026-11-05：0.5.0 を出す（commit `05c727b`、タグ `0.5.0`）。Auto Thumbnail Design の `metaSize`（標準・大・特大）に沿って、ロゴ、サイト名、日付の大きさを変えて描く。すき間と四角いロゴの角の丸みも合わせ、サイト名が長くて日付とぶつかるときは日付を上の段に置く。古いプラグインでは、これまでの大きさのまま。ob-main のプレビューで大と特大を確かめた。下書きのリリースはできていて、公開と自動レビューの結果は次に記録する。
 - 2026-11-05：0.5.0 を公開した（Latest）。自動レビューは Completed（commit `05c727b`）。写真で見えた範囲では、リリースの証明、ファイルの読み書き、依存関係、難読化、ビルドの再現はすべて Pass。出ているのは、いつもの Vault Enumeration の Recommendation だけで、直さなくてよい。
+
+### Obsidian 1.15 の確認（2026-11-06）
+
+Obsidian の更新履歴（デスクトップ版 1.15.0、モバイル版 1.15.0、デスクトップ版とモバイル版の 1.15.1）を読み、開発者向けの変更が Post To EmDash と Post To Bluesky に関係するかをソースコードで調べた。**どちらも直すところはない。**
+
+- 1.15.0（2026-11-02）
+  - `prepareFuzzySearch` と `prepareSimpleSearch` がアクセント記号を区別しなくなった。Post To EmDash は使っていない。Post To Bluesky の画像選び（`FuzzySuggestModal`）は「cafe」で「café」も見つかるようになるだけ。
+  - エディタの書式記号の内部名（`formatting-*-end`）が変わった。どちらも使っていない。
+  - Mermaid の描画が Pele に変わった（`loadMermaid()`、`window.mermaid`）。どちらも使っていない。
+  - `PIXI` を初めてグラフを開いたときに読み込むようになった（`loadPixi()`）。どちらも使っていない。
+  - モバイル版 1.15.0 には開発者向けの欄がない（デスクトップ版 1.15.0 の変更を含む）。
+- 1.15.1（2026-11-03、早期アクセス版 Catalyst）
+  - タイマーは `window.setTimeout` を使う（`activeWindow.setTimeout` はポップアウトのウィンドウを閉じると止まる）。どちらもすでに `window.setTimeout` だけを使っている。
+  - `Array#contains` と `String#contains` が非推奨になった（`includes` を使う）。どちらも使っていない（Post To Bluesky の `classList.contains` と `Node.contains` は標準の DOM の書き方なので対象外）。
+  - `FileManager#trashFile` と `FileManager#promptForDeletion` は、ごみ箱に移せないときに `false` を返すようになった。どちらも使っていない。
+  - スマホのサイドバー（`slidingSidebar` の設定の削除、`is-sliding-sidebar`）と `--anim-motion-swing` が変わった。どちらの styles.css も使っていない。
+  - プラグインを入れるとき、保管庫に前からあった設定ファイルは読まずに `data.json.bak` として残すようになった。新しい保管庫に初めて入れるときだけ関係し、今の設定はそのまま使える。
+- `requestUrl`、設定画面、`SecretComponent`、`Modal`、`SuggestModal`、`AbstractInputSuggest` の変更は書かれていない。
+- 開発用の `obsidian` パッケージの最新は 1.14.4 のまま（1.15 の型はまだない）。
+- 念のため、1.15 でいつもの投稿を 1 回試すとよい（PC と iPhone）。
